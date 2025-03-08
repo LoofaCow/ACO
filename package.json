@@ -1,15 +1,33 @@
 {
-  "name": "adorable-chatbot",
+  "name": "aco",
   "version": "1.0.0",
+  "description": "Chatbot Custom",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": ["chatbot", "electron", "AI", "messaging", "desktop app", "cute", "chat"],
+  "author": "Loofacow",
+  "license": "MIT",
   "devDependencies": {
-    "electron": "^35.0.0"
+    "electron": "^35.0.0",
+    "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "appId": "com.loofacow.aco",
+    "productName": "ACO",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "src/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "src/renderer/assets/ACO-Icon.jpeg"
+    }
   }
 }
