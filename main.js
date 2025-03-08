@@ -6,12 +6,12 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true,  // I know it's not perfect for security, but we're keeping it simple, babe!
+      nodeIntegration: true,
       contextIsolation: false
     }
   });
 
-  win.loadFile(require('path').join(__dirname, 'src', 'renderer', 'index.html'));
+  win.loadFile(path.join(__dirname, 'src', 'renderer', 'index.html'));
 }
 
 app.whenReady().then(createWindow);

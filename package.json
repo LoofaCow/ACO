@@ -7,7 +7,15 @@
     "start": "electron .",
     "dist": "electron-builder"
   },
-  "keywords": ["chatbot", "electron", "AI", "messaging", "desktop app", "cute", "chat"],
+  "keywords": [
+    "chatbot",
+    "electron",
+    "AI",
+    "messaging",
+    "desktop app",
+    "cute",
+    "chat"
+  ],
   "author": "Loofacow",
   "license": "MIT",
   "devDependencies": {
