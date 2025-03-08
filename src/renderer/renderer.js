@@ -1,7 +1,21 @@
+const { ipcRenderer } = require('electron');
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded and parsed.');
 
-  // Header & Drawer Toggling
+  // Function to show notifications
+  function showNotification(message, type) {
+    const container = document.getElementById('notification-container');
+    const notification = document.createElement('div');
+    notification.classList.add('notification', type);
+    notification.innerText = message;
+    container.appendChild(notification);
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+
+  // Header & Left Drawer Toggling
   const hamburger = document.getElementById('hamburger');
   const drawer = document.getElementById('drawer');
 
@@ -11,10 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
       drawer.classList.toggle('open');
     });
   } else {
-    console.error('Hamburger or drawer element not found!');
+    console.error('Hamburger or left drawer element not found!');
   }
 
-  // Drawer Navigation (Chat Threads & Workspace)
+  // Left Drawer Navigation (Chat Threads & Workspace)
   const navChat = document.getElementById('nav-chat');
   const navWorkspace = document.getElementById('nav-workspace');
 
@@ -33,17 +47,216 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Header Icon Buttons
   const iconSettings = document.getElementById('icon-settings');
-  const iconCharacters = document.getElementById('icon-characters'); // now for Personas
-  const iconPersonas = document.getElementById('icon-personas');       // now for Characters
+  const iconCharacters = document.getElementById('icon-characters'); // For Persona management (right drawer)
+  const iconPersonas = document.getElementById('icon-personas');       // For Character management (right drawer)
 
+  // Toggle Settings Panel on Settings Icon Click
   if (iconSettings) {
-    iconSettings.addEventListener('click', () => { alert('Header Settings icon clicked!'); });
+    iconSettings.addEventListener('click', () => {
+      const settingsPanel = document.getElementById('settings-panel');
+      const chatInterface = document.getElementById('chat-interface');
+      if (settingsPanel.classList.contains('active')) {
+        settingsPanel.classList.remove('active');
+        chatInterface.style.display = 'flex';
+        iconSettings.classList.remove('icon-active');
+      } else {
+        settingsPanel.classList.add('active');
+        chatInterface.style.display = 'none';
+        iconSettings.classList.add('icon-active');
+        // Also close right drawer if open
+        rightDrawer.classList.remove('open');
+        activeRightDrawerType = null;
+        // Load API form by default when settings open
+        loadApiForm();
+      }
+    });
   }
-  if (iconCharacters) {
-    iconCharacters.addEventListener('click', () => { alert('Header Personas icon clicked!'); });
-  }
+
+  // Right Drawer for Character/Persona Management
+  const rightDrawer = document.getElementById('right-drawer');
+  const rightDrawerTitle = document.getElementById('right-drawer-title');
+  const rightDrawerContent = document.getElementById('right-drawer-content');
+  let activeRightDrawerType = null; // 'characters' for Character management, 'personas' for Persona management
+
+  // For Character management (right drawer)
   if (iconPersonas) {
-    iconPersonas.addEventListener('click', () => { alert('Header Characters icon clicked!'); });
+    iconPersonas.addEventListener('click', () => {
+      // Instead of loading the creation menu immediately, load default content
+      if (activeRightDrawerType === 'characters') {
+        rightDrawer.classList.remove('open');
+        activeRightDrawerType = null;
+      } else {
+        rightDrawerTitle.innerText = "Character Management";
+        rightDrawerContent.innerHTML = getCharacterManagementDefault();
+        rightDrawer.classList.add('open');
+        activeRightDrawerType = 'characters';
+        // Hide settings panel if open
+        const settingsPanel = document.getElementById('settings-panel');
+        settingsPanel.classList.remove('active');
+        document.getElementById('chat-interface').style.display = 'flex';
+        iconSettings.classList.remove('icon-active');
+        attachCharacterDefaultEvents();
+      }
+    });
+  }
+
+  // For Persona management (right drawer)
+  if (iconCharacters) {
+    iconCharacters.addEventListener('click', () => {
+      if (activeRightDrawerType === 'personas') {
+        rightDrawer.classList.remove('open');
+        activeRightDrawerType = null;
+      } else {
+        rightDrawerTitle.innerText = "Persona Management";
+        rightDrawerContent.innerHTML = "<p>Persona management content goes here.</p>";
+        rightDrawer.classList.add('open');
+        activeRightDrawerType = 'personas';
+        const settingsPanel = document.getElementById('settings-panel');
+        settingsPanel.classList.remove('active');
+        document.getElementById('chat-interface').style.display = 'flex';
+        iconSettings.classList.remove('icon-active');
+      }
+    });
+  }
+
+  // Settings Panel Close Button
+  const settingsCloseBtn = document.getElementById('settings-close-btn');
+  if (settingsCloseBtn) {
+    settingsCloseBtn.addEventListener('click', () => {
+      const settingsPanel = document.getElementById('settings-panel');
+      const chatInterface = document.getElementById('chat-interface');
+      settingsPanel.classList.remove('active');
+      chatInterface.style.display = 'flex';
+      iconSettings.classList.remove('icon-active');
+    });
+  }
+
+  // Settings Panel Tabs
+  const settingsTabButtons = document.querySelectorAll('.settings-tab-btn');
+  const settingsContent = document.getElementById('settings-content');
+  settingsTabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      settingsTabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.getAttribute('data-tab');
+      let contentHTML = '';
+      if (tab === 'api') {
+         contentHTML = getApiFormHtml();
+      } else if (tab === 'advanced') {
+         contentHTML = '<p>Placeholder for Advanced Parameters.</p>';
+      } else if (tab === 'formatting') {
+         contentHTML = '<p>Placeholder for Advanced Formatting.</p>';
+      } else if (tab === 'extensions') {
+         contentHTML = '<p>Placeholder for Extensions.</p>';
+      }
+      settingsContent.innerHTML = contentHTML;
+      if (tab === 'api') {
+        attachApiFormEvents();
+      }
+    });
+  });
+
+  // Function to return API form HTML
+  function getApiFormHtml() {
+    return `
+      <div>
+        <label for="api-url">API URL:</label><br>
+        <input type="text" id="api-url" placeholder="https://api.example.com" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
+        <label for="api-key">API Key:</label><br>
+        <input type="text" id="api-key" placeholder="Your API key here" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
+        <button id="api-connect-btn" style="padding:8px 16px; border:none; border-radius:4px; background:#ff6f61; color:#fff; cursor:pointer;">Connect</button>
+      </div>
+    `;
+  }
+
+  // Function to load API form in settings-content
+  function loadApiForm() {
+    settingsContent.innerHTML = getApiFormHtml();
+    attachApiFormEvents();
+  }
+
+  // Attach event listener to API Connect button
+  function attachApiFormEvents() {
+    const apiConnectBtn = document.getElementById('api-connect-btn');
+    if (apiConnectBtn) {
+      apiConnectBtn.addEventListener('click', () => {
+        const apiUrl = document.getElementById('api-url').value.trim();
+        const apiKey = document.getElementById('api-key').value.trim();
+        // Simulated API connection check:
+        if (apiUrl.startsWith('http') && apiKey && apiKey.toLowerCase() !== 'error') {
+          showNotification("Connected", "success");
+        } else {
+          showNotification("Error", "error");
+        }
+      });
+    }
+  }
+
+  // Function to return default Character Management content
+  function getCharacterManagementDefault() {
+    return `
+      <p>No character selected. Please choose an option:</p>
+      <div style="margin-top:16px;">
+        <button class="char-btn" id="default-create-char-btn" title="Create Character">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+            <path d="M12 5v14m-7-7h14" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Create Character</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // Function to return Character Creation Form HTML
+  function getCharacterCreationForm() {
+    return `
+      <div class="character-creation">
+        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+          <div style="width: 80px; height: 80px; background: #2a2a2a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+            <span style="font-size: 36px;">?</span>
+          </div>
+          <input type="text" id="char-name" placeholder="Character Name" style="flex: 1; padding: 8px; border: none; border-radius: 4px; background: #2a2a2a; color: #e0e0e0;">
+        </div>
+        <div style="margin-bottom: 16px;">
+          <textarea id="char-description" placeholder="Character Description" style="width:100%; padding:8px; border:none; border-radius:4px; background:#2a2a2a; color:#e0e0e0;" rows="3"></textarea>
+        </div>
+        <div>
+          <textarea id="char-first-message" placeholder="Character First Message" style="width:100%; padding:8px; border:none; border-radius:4px; background:#2a2a2a; color:#e0e0e0;" rows="3"></textarea>
+        </div>
+      </div>
+    `;
+  }
+
+  // Attach event listener for default Create Character button in right drawer
+  function attachCharacterDefaultEvents() {
+    const defaultCreateCharBtn = document.getElementById('default-create-char-btn');
+    if (defaultCreateCharBtn) {
+      defaultCreateCharBtn.addEventListener('click', () => {
+        // Replace default content with character creation form
+        rightDrawerContent.innerHTML = getCharacterCreationForm();
+      });
+    }
+  }
+
+  // Window Control Buttons using IPC
+  const minimizeBtn = document.getElementById('minimize-btn');
+  const maximizeBtn = document.getElementById('maximize-btn');
+  const closeBtn = document.getElementById('close-btn');
+
+  if (minimizeBtn) {
+    minimizeBtn.addEventListener('click', () => {
+      ipcRenderer.send('window-minimize');
+    });
+  }
+  if (maximizeBtn) {
+    maximizeBtn.addEventListener('click', () => {
+      ipcRenderer.send('window-maximize');
+    });
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      ipcRenderer.send('window-close');
+    });
   }
 
   // Chat Send Functionality
