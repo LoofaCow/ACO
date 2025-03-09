@@ -1,42 +1,76 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'false';
+
 let mainWindow;
 
-function createWindow () {
+function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    frame: false, // Frameless for our custom title bar
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
+    frame: false,
+    titleBarStyle: 'hidden',
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      preload: path.join(__dirname, 'src/preload.js'),
+      nodeIntegration: true,         // Enabled so that require() works in renderer
+      contextIsolation: false,       // Disabled for easier module access in renderer
+      sandbox: false,                // Disabled to allow node integration
+      webSecurity: true,
+      allowRunningInsecureContent: false
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'src', 'renderer', 'index.html'));
-  mainWindow.setMenu(null);
+  // Load main window
+  mainWindow.loadFile(path.join(__dirname, 'src/renderer/index.html'));
 
-  // IPC listeners for window control actions
-  ipcMain.on('window-minimize', () => {
-    mainWindow.minimize();
-  });
+  // Development tools
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+    require('electron-reloader')(module);
+  }
 
-  ipcMain.on('window-maximize', () => {
-    if (mainWindow.isMaximized()) {
-      mainWindow.unmaximize();
-    } else {
-      mainWindow.maximize();
+  // Window controls handler
+  ipcMain.handle('window-control', (_, action) => {
+    switch(action) {
+      case 'minimize': 
+        mainWindow.minimize(); 
+        break;
+      case 'maximize': 
+        mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
+        break;
+      case 'close': 
+        mainWindow.close(); 
+        break;
     }
   });
 
-  ipcMain.on('window-close', () => {
-    mainWindow.close();
-  });
+  // Version handler
+  ipcMain.handle('get-app-version', () => app.getVersion());
 }
 
-app.whenReady().then(createWindow);
+// App lifecycle
+app.whenReady().then(() => {
+  createWindow();
+  
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
+});
+
+// Security headers middleware
+app.on('web-contents-created', (event, contents) => {
+  contents.on('will-navigate', (event) => {
+    event.preventDefault();
+  });
+  
+  contents.setWindowOpenHandler(() => ({
+    action: 'deny'
+  }));
 });

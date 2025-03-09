@@ -1,76 +1,49 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
-const axios = require('axios'); // Ensure axios is installed (npm install axios)
 
-const apiDir = path.join(__dirname, '../data/api/');
-const defaultFilePath = path.join(apiDir, 'default.json');
+const API_DIR = path.join(__dirname, '../data/api/');
+const DEFAULT_FILE = path.join(API_DIR, 'default.json');
 
-// Ensure the API data directory exists
-if (!fs.existsSync(apiDir)) {
-    fs.mkdirSync(apiDir, { recursive: true });
-}
+class ApiStorage {
+  static async initialize() {
+    await fs.mkdir(API_DIR, { recursive: true });
+  }
 
-// Save API connection as a separate JSON file
-function saveConnection(name, url, apiKey) {
-    const filePath = path.join(apiDir, `${name}.json`);
+  static async saveConnection(name, url, apiKey) {
+    const filePath = path.join(API_DIR, `${name}.json`);
     const connectionData = { name, url, apiKey };
-
-    fs.writeFileSync(filePath, JSON.stringify(connectionData, null, 2), 'utf8');
+    await fs.writeFile(filePath, JSON.stringify(connectionData, null, 2));
     return true;
-}
+  }
 
-// Load all saved API connections (ignores default.json)
-function getConnections() {
-    if (!fs.existsSync(apiDir)) return [];
-
-    const files = fs.readdirSync(apiDir).filter(file => file.endsWith('.json') && file !== 'default.json');
-    return files.map(file => {
-        const filePath = path.join(apiDir, file);
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    });
-}
-
-// Save the default selected connection
-function saveDefaultConnection(name) {
-    fs.writeFileSync(defaultFilePath, JSON.stringify({ defaultConnection: name }, null, 2), 'utf8');
-}
-
-// Load the default selected connection
-function getDefaultConnection() {
-    if (!fs.existsSync(defaultFilePath)) return null;
-    const data = JSON.parse(fs.readFileSync(defaultFilePath, 'utf8'));
-    return data.defaultConnection || null;
-}
-
-module.exports = {
-    saveConnection,
-    getConnections,
-    saveDefaultConnection,
-    getDefaultConnection };
-
-    // Function to fetch available models from Featherless AI
-async function fetchFeatherlessModels(apiUrl, apiKey) {
+  static async getConnections() {
     try {
-        const response = await axios.get(`${apiUrl}/v1/models`, {
-            headers: { 'Authorization': `Bearer ${apiKey}` }
-        });
-
-        if (response.data && response.data.models) {
-            return response.data.models; // Return list of available models
-        } else {
-            return [];
-        }
+      const files = await fs.readdir(API_DIR);
+      return Promise.all(
+        files
+          .filter(file => file.endsWith('.json') && file !== 'default.json')
+          .map(async file => {
+            const data = await fs.readFile(path.join(API_DIR, file), 'utf8');
+            return JSON.parse(data);
+          })
+      );
     } catch (error) {
-        console.error("Error fetching models:", error);
-        return [];
+      return [];
     }
+  }
+
+  static async saveDefaultConnection(name) {
+    await fs.writeFile(DEFAULT_FILE, JSON.stringify({ defaultConnection: name }, null, 2));
+  }
+
+  static async getDefaultConnection() {
+    try {
+      const data = await fs.readFile(DEFAULT_FILE, 'utf8');
+      return JSON.parse(data).defaultConnection;
+    } catch (error) {
+      return null;
+    }
+  }
 }
 
-module.exports = {
-    saveConnection,
-    getConnections,
-    saveDefaultConnection,
-    getDefaultConnection,
-    fetchFeatherlessModels // Export the new function
-};
+module.exports = ApiStorage;

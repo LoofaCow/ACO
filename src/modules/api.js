@@ -1,67 +1,64 @@
 const OpenAI = require('openai');
-const apiStorage = require('./apiStorage');
-const fetch = require('node-fetch');
+const ApiStorage = require('./apiStorage');
 
+class ApiManager {
+  constructor() {
+    this.openai = null;
+  }
 
-// Create an OpenAI instance with default values initially
-let openai = new OpenAI({
-  baseURL: process.env.OPENAI_BASE_URL || 'https://api.featherless.ai/v1',
-  apiKey: process.env.OPENAI_API_KEY || 'api_key',
-});
+  async initialize() {
+    return this.setDefaultConnection();
+  }
 
-/**
- * Create a chat completion using the LLM.
- * @param {Array} messages - Array of message objects.
- * @param {string} model - The model to use.
- * @param {number} maxTokens - Maximum tokens for the response.
- * @returns {Promise<string>} - The response message content.
- */
-async function createChatCompletion(messages, model = 'mistralai/Mistral-Nemo-Instruct-2407', maxTokens = 4096) {
-  try {
-    const chatCompletions = await openai.chat.completions.create({
-      model: model,
-      max_tokens: maxTokens,
-      messages: messages,
-    });
-    if (chatCompletions.choices && chatCompletions.choices.length > 0) {
-      return chatCompletions.choices[0].message.content;
-    } else {
-      throw new Error('No completion choices returned.');
+  async updateConnection(connection) {
+    try {
+      if (!connection?.url || !connection?.apiKey) {
+        throw new Error('Invalid connection parameters');
+      }
+
+      this.openai = new OpenAI({
+        baseURL: connection.url,
+        apiKey: connection.apiKey,
+      });
+
+      console.log(`API connection updated to: ${connection.name}`);
+      return true;
+    } catch (error) {
+      console.error('Connection error:', error.message);
+      return false;
     }
-  } catch (error) {
-    console.error('Error during chat completion:', error);
-    throw error;
+  }
+
+  async getModels() {
+    if (!this.openai) throw new Error('API connection not initialized');
+    
+    try {
+      const response = await fetch(`${this.openai.baseURL}/models`, {
+        headers: { 'Authorization': `Bearer ${this.openai.apiKey}` }
+      });
+      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const data = await response.json();
+      return data.models || [];
+    } catch (error) {
+      console.error('Model fetch error:', error.message);
+      return [];
+    }
+  }
+
+  async setDefaultConnection() {
+    try {
+      const connections = await ApiStorage.getConnections();
+      const defaultName = await ApiStorage.getDefaultConnection();
+      const connection = connections.find(c => c.name === defaultName);
+      
+      return connection ? this.updateConnection(connection) : false;
+    } catch (error) {
+      console.error('Default connection error:', error.message);
+      return false;
+    }
   }
 }
 
-/**
- * Update the OpenAI instance with new connection settings.
- * @param {Object} connection - The connection object with keys: name, url, apiKey.
- */
-function updateAPIConnection(connection) {
-  openai = new OpenAI({
-    baseURL: connection.url,
-    apiKey: connection.apiKey,
-  });
-  console.log(`API connection updated to: ${connection.name}`);
-}
-
-/**
- * Set the default API connection using the saved default.
- */
-function setDefaultAPIConnection() {
-  const connections = apiStorage.getConnections();
-  const defaultName = apiStorage.getDefaultConnection();
-  const connection = connections.find(conn => conn.name === defaultName);
-  if (connection) {
-    updateAPIConnection(connection);
-  } else {
-    console.warn('No default connection found.');
-  }
-}
-
-module.exports = {
-  createChatCompletion,
-  updateAPIConnection,
-  setDefaultAPIConnection,
-};
+module.exports = new ApiManager();

@@ -3,201 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>ACO - Chat Interface</title>
-  <style>
-    /* Reset & Global Settings */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      background: #121212;
-      font-family: 'Segoe UI', sans-serif;
-      color: #e0e0e0;
-      overflow: hidden;
-    }
-    /* Notification Container */
-    #notification-container {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 2000;
-    }
-    .notification {
-      padding: 10px 16px;
-      margin-bottom: 10px;
-      border-radius: 4px;
-      font-size: 14px;
-      opacity: 0.9;
-      color: #fff;
-    }
-    .notification.success { background-color: #4CAF50; }
-    .notification.error { background-color: #F44336; }
-    /* Custom Title Bar (Header) */
-    .header {
-      -webkit-app-region: drag;
-      display: flex;
-      align-items: center;
-      background-color: rgba(30, 30, 30, 0.8);
-      padding: 12px 16px;
-      border-bottom: 1px solid #333;
-      position: relative;
-      height: 60px;
-    }
-    .hamburger {
-      -webkit-app-region: no-drag;
-      display: inline-block;
-      cursor: pointer;
-      margin-right: 16px;
-    }
-    .hamburger div {
-      width: 30px;
-      height: 4px;
-      background-color: #e0e0e0;
-      margin: 5px 0;
-      border-radius: 2px;
-    }
-    .header h1 { font-size: 24px; font-weight: 500; margin-right: 16px; }
-    .header-icons {
-      -webkit-app-region: no-drag;
-      margin-left: auto;
-      display: flex;
-      gap: 10px;
-    }
-    .icon-btn { background: transparent; border: none; cursor: pointer; padding: 4px; }
-    .icon-btn svg { transition: fill 0.2s ease; }
-    .icon-btn:hover svg { fill: #ff6f61; }
-    .icon-active svg { fill: #ff6f61; }
-    /* Window Control Buttons */
-    .window-controls {
-      -webkit-app-region: no-drag;
-      display: flex;
-      gap: 5px;
-      margin-left: 10px;
-    }
-    .window-btn {
-      width: 30px; height: 30px;
-      display: flex; align-items: center; justify-content: center;
-      background: transparent; border: none; cursor: pointer;
-    }
-    .window-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-    }
-    .window-btn svg { width: 16px; height: 16px; fill: #e0e0e0; }
-    /* Left Drawer Styling */
-    .drawer {
-      position: fixed;
-      top: 60px; left: -250px;
-      width: 250px; height: calc(100% - 60px);
-      background: #1e1e1e; padding: 20px;
-      transition: left 0.3s ease;
-      z-index: 1000;
-      border-right: 1px solid #333;
-      border-top-right-radius: 8px;
-      border-bottom-right-radius: 8px;
-    }
-    .drawer.open { left: 0; }
-    .drawer h2 { font-size: 20px; margin-bottom: 20px; color: #e0e0e0; }
-    .drawer ul { list-style: none; }
-    .drawer ul li {
-      padding: 10px; margin-bottom: 10px;
-      background: #2a2a2a; border-radius: 8px;
-      cursor: pointer; transition: background 0.2s ease;
-    }
-    .drawer ul li:hover { background: #3a3a3a; }
-    /* Right Drawer Styling */
-    .right-drawer {
-      position: fixed;
-      top: 60px; right: -250px;
-      width: 250px; height: calc(100% - 60px);
-      background: #1e1e1e; padding: 20px;
-      transition: right 0.3s ease;
-      z-index: 1000;
-      border-left: 1px solid #333;
-      border-top-left-radius: 8px;
-      border-bottom-left-radius: 8px;
-    }
-    .right-drawer.open { right: 0; }
-    .right-drawer h2 { font-size: 20px; margin-bottom: 20px; color: #e0e0e0; }
-    /* Main Content */
-    .main-content {
-      padding: 16px; height: calc(100vh - 60px);
-      display: flex; flex-direction: column;
-    }
-    /* Chat Interface Container */
-    .chat-interface {
-      display: flex; flex-direction: column; height: 100%;
-    }
-    .chat-container {
-      flex: 1; overflow-y: auto;
-      background: #1e1e1e; padding: 16px;
-      border-radius: 8px; margin-bottom: 16px;
-      display: flex; flex-direction: column;
-    }
-    .chat-container::-webkit-scrollbar { width: 8px; }
-    .chat-container::-webkit-scrollbar-track { background: #1e1e1e; }
-    .chat-container::-webkit-scrollbar-thumb {
-      background-color: #2a2a2a; border-radius: 4px;
-    }
-    .chat-container::-webkit-scrollbar-button { display: none; }
-    /* Input Container */
-    .input-container {
-      display: flex; align-items: center;
-    }
-    #message-input {
-      flex: 1; padding: 12px; border: none;
-      border-radius: 8px; font-size: 16px;
-      margin-right: 8px; background: #2a2a2a; color: #e0e0e0;
-    }
-    #send-button {
-      background: #ff6f61; border: none;
-      border-radius: 8px; padding: 12px;
-      cursor: pointer; -webkit-app-region: no-drag;
-    }
-    #send-button svg { fill: #ffffff; width: 24px; height: 24px; }
-    /* Settings Panel */
-    .settings-panel {
-      display: none; flex: 1; overflow-y: auto;
-      background: #1e1e1e; padding: 16px;
-      border-radius: 8px; position: relative;
-    }
-    .settings-panel.active { display: block; }
-    .settings-close-btn {
-      position: absolute; top: 8px; right: 8px;
-      background: transparent; border: none;
-      font-size: 24px; color: #e0e0e0;
-      cursor: pointer; -webkit-app-region: no-drag;
-    }
-    .settings-close-btn:hover { color: #ff6f61; }
-    /* Settings Panel Tabs */
-    .settings-tabs {
-      display: flex; gap: 10px; margin-bottom: 16px;
-    }
-    .settings-tab-btn {
-      background: #2a2a2a; border: none;
-      padding: 8px 12px; border-radius: 8px;
-      cursor: pointer; display: flex; align-items: center;
-      gap: 5px; transition: background 0.2s ease;
-    }
-    .settings-tab-btn:hover { background: #3a3a3a; }
-    .settings-tab-btn.active { background: #ff6f61; }
-    .settings-tab-btn span { font-size: 14px; }
-    .settings-content { }
-    /* Character Management - Additional Styles */
-    .character-bar {
-      display: flex; gap: 10px; margin-bottom: 16px;
-    }
-    .char-btn {
-      background: #2a2a2a; border: none;
-      padding: 8px; border-radius: 8px; cursor: pointer;
-    }
-    .char-btn:hover { background: #3a3a3a; }
-    .character-list { }
-    /* Character Creation Form */
-    .character-creation { padding: 8px; }
-    .character-creation > div { margin-bottom: 16px; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Notification Container -->
   <div id="notification-container"></div>
+  
   <!-- Left Drawer -->
   <div class="drawer" id="drawer">
     <h2>Menu</h2>
@@ -206,11 +16,11 @@
       <li id="nav-workspace">Workspace</li>
     </ul>
   </div>
+
   <!-- Right Drawer -->
   <div class="right-drawer" id="right-drawer">
     <h2 id="right-drawer-title">Management</h2>
     <div id="right-drawer-content">
-      <!-- Default content for Character Management -->
       <div class="character-bar">
         <button class="char-btn" id="default-create-char-btn" title="Create Character">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
@@ -228,7 +38,8 @@
       </div>
     </div>
   </div>
-  <!-- Header / Custom Title Bar -->
+
+  <!-- Header -->
   <div class="header">
     <div class="hamburger" id="hamburger">
       <div></div>
@@ -253,12 +64,9 @@
         </svg>
       </button>
     </div>
-    <!-- Custom Window Controls -->
     <div class="window-controls">
       <button class="window-btn" id="minimize-btn" title="Minimize">
-        <svg viewBox="0 0 10 1">
-          <rect width="10" height="1"></rect>
-        </svg>
+        <svg viewBox="0 0 10 1"><rect width="10" height="1"></rect></svg>
       </button>
       <button class="window-btn" id="maximize-btn" title="Maximize">
         <svg viewBox="0 0 10 10">
@@ -273,58 +81,47 @@
       </button>
     </div>
   </div>
+
   <!-- Main Content -->
   <div class="main-content">
-    <!-- Chat Interface -->
     <div class="chat-interface" id="chat-interface">
-      <div class="chat-container" id="chat-container">
-        <!-- Chat messages will appear here -->
-      </div>
+      <div class="chat-container" id="chat-container"></div>
       <div class="input-container">
         <input type="text" id="message-input" placeholder="Type your message...">
         <button id="send-button" title="Send">
-          <svg viewBox="0 0 24 24">
-            <path d="M2.01 21L23 12 2.01 3v7l15 2-15 2z"></path>
-          </svg>
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3v7l15 2-15 2z"></path></svg>
         </button>
       </div>
     </div>
-    <!-- Settings Panel -->
     <div class="settings-panel" id="settings-panel">
-      <button class="settings-close-btn" id="settings-close-btn" title="Close Settings">×</button>
+      <button class="settings-close-btn" id="settings-close-btn">×</button>
       <div class="settings-tabs">
         <button class="settings-tab-btn active" data-tab="api">
-          <!-- Electrical Plug Icon for API Connections -->
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
             <path d="M6 2V8H4v8h2v6h4v-6h4v6h4v-6h2V8h-2V2H6zm2 2h8v4H8V4zm10 10v4h-2v-4h2z"/>
           </svg>
           <span>API Connections</span>
         </button>
         <button class="settings-tab-btn" data-tab="advanced">
-          <!-- Sliders Icon for Advanced Parameters -->
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
             <path d="M4 10h16v2H4zm0 4h16v2H4zm0-8h16v2H4z"/>
           </svg>
           <span>Advanced Parameters</span>
         </button>
         <button class="settings-tab-btn" data-tab="formatting">
-          <!-- Capital A Icon for Advanced Formatting -->
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
             <text x="4" y="20" font-size="20" font-family="Segoe UI" fill="#e0e0e0">A</text>
           </svg>
           <span>Advanced Formatting</span>
         </button>
         <button class="settings-tab-btn" data-tab="extensions">
-          <!-- Puzzle Piece Icon for Extensions -->
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
             <path d="M21 10c0-1.1-.9-2-2-2h-3V5c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1v3h-3c-1.1 0-2 .9-2 2v2c0 .55.45 1 1 1h3v3c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-3h3c1.1 0 2-.9 2-2v-2z"/>
           </svg>
           <span>Extensions</span>
         </button>
       </div>
-      <div class="settings-content" id="settings-content">
-        <p>Placeholder for API Connections.</p>
-      </div>
+      <div class="settings-content" id="settings-content"></div>
     </div>
   </div>
   <script src="renderer.js"></script>
