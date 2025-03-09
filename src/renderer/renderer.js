@@ -10,15 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     notification.classList.add('notification', type);
     notification.innerText = message;
     container.appendChild(notification);
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
+    setTimeout(() => { notification.remove(); }, 3000);
   }
 
   // Header & Left Drawer Toggling
   const hamburger = document.getElementById('hamburger');
   const drawer = document.getElementById('drawer');
-
   if (hamburger && drawer) {
     hamburger.addEventListener('click', () => {
       console.log('Hamburger clicked');
@@ -31,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Left Drawer Navigation (Chat Threads & Workspace)
   const navChat = document.getElementById('nav-chat');
   const navWorkspace = document.getElementById('nav-workspace');
-
   if (navChat) {
     navChat.addEventListener('click', () => {
       alert('Chat Threads clicked!');
@@ -78,10 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const rightDrawerContent = document.getElementById('right-drawer-content');
   let activeRightDrawerType = null; // 'characters' for Character management, 'personas' for Persona management
 
-  // For Character management (right drawer)
+  // For Character management (right drawer) - default view shows horizontal icon buttons
   if (iconPersonas) {
     iconPersonas.addEventListener('click', () => {
-      // Instead of loading the creation menu immediately, load default content
       if (activeRightDrawerType === 'characters') {
         rightDrawer.classList.remove('open');
         activeRightDrawerType = null;
@@ -192,17 +187,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Function to return default Character Management content
+  // Function to return default Character Management content (default view)
   function getCharacterManagementDefault() {
     return `
-      <p>No character selected. Please choose an option:</p>
-      <div style="margin-top:16px;">
+      <p>No character selected. Choose an option:</p>
+      <div class="character-bar">
         <button class="char-btn" id="default-create-char-btn" title="Create Character">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
             <path d="M12 5v14m-7-7h14" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <span>Create Character</span>
         </button>
+        <button class="char-btn" id="default-import-char-btn" title="Import Character">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM13 9V3.5L18.5 9H13z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="character-list">
+        <p>Character profiles will be displayed here.</p>
       </div>
     `;
   }
@@ -227,13 +229,18 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  // Attach event listener for default Create Character button in right drawer
+  // Attach event listeners for default Character Management buttons
   function attachCharacterDefaultEvents() {
     const defaultCreateCharBtn = document.getElementById('default-create-char-btn');
+    const defaultImportCharBtn = document.getElementById('default-import-char-btn');
     if (defaultCreateCharBtn) {
       defaultCreateCharBtn.addEventListener('click', () => {
-        // Replace default content with character creation form
         rightDrawerContent.innerHTML = getCharacterCreationForm();
+      });
+    }
+    if (defaultImportCharBtn) {
+      defaultImportCharBtn.addEventListener('click', () => {
+        alert("Import Character clicked!");
       });
     }
   }
@@ -242,33 +249,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const minimizeBtn = document.getElementById('minimize-btn');
   const maximizeBtn = document.getElementById('maximize-btn');
   const closeBtn = document.getElementById('close-btn');
-
   if (minimizeBtn) {
-    minimizeBtn.addEventListener('click', () => {
-      ipcRenderer.send('window-minimize');
-    });
+    minimizeBtn.addEventListener('click', () => { ipcRenderer.send('window-minimize'); });
   }
   if (maximizeBtn) {
-    maximizeBtn.addEventListener('click', () => {
-      ipcRenderer.send('window-maximize');
-    });
+    maximizeBtn.addEventListener('click', () => { ipcRenderer.send('window-maximize'); });
   }
   if (closeBtn) {
-    closeBtn.addEventListener('click', () => {
-      ipcRenderer.send('window-close');
-    });
+    closeBtn.addEventListener('click', () => { ipcRenderer.send('window-close'); });
   }
 
   // Chat Send Functionality
   const sendButton = document.getElementById('send-button');
   const messageInput = document.getElementById('message-input');
   const chatContainer = document.getElementById('chat-container');
-
   sendButton.addEventListener('click', () => {
     const message = messageInput.value.trim();
     if (message === '') return;
-
-    // Create Sender Message Bubble (Right Side)
     const messageBubble = document.createElement('div');
     messageBubble.style.padding = '8px 12px';
     messageBubble.style.marginBottom = '8px';
@@ -277,12 +274,9 @@ document.addEventListener('DOMContentLoaded', () => {
     messageBubble.style.maxWidth = '70%';
     messageBubble.style.alignSelf = 'flex-end';
     messageBubble.innerText = message;
-
     chatContainer.appendChild(messageBubble);
     messageInput.value = '';
     chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    // Automatically create a response bubble (Left Side) with "Connect API"
     setTimeout(() => {
       const responseBubble = document.createElement('div');
       responseBubble.style.padding = '8px 12px';
@@ -292,16 +286,11 @@ document.addEventListener('DOMContentLoaded', () => {
       responseBubble.style.maxWidth = '70%';
       responseBubble.style.alignSelf = 'flex-start';
       responseBubble.innerText = "Connect API";
-
       chatContainer.appendChild(responseBubble);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }, 500);
   });
-
-  // Send Message on Enter Key Press
   messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      sendButton.click();
-    }
+    if (e.key === 'Enter') { sendButton.click(); }
   });
 });
