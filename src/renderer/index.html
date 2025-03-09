@@ -47,7 +47,8 @@
       margin-right: 16px;
     }
     .hamburger div {
-      width: 30px; height: 4px;
+      width: 30px;
+      height: 4px;
       background-color: #e0e0e0;
       margin: 5px 0;
       border-radius: 2px;
@@ -59,10 +60,7 @@
       display: flex;
       gap: 10px;
     }
-    .icon-btn {
-      background: transparent; border: none;
-      cursor: pointer; padding: 4px;
-    }
+    .icon-btn { background: transparent; border: none; cursor: pointer; padding: 4px; }
     .icon-btn svg { transition: fill 0.2s ease; }
     .icon-btn:hover svg { fill: #ff6f61; }
     .icon-active svg { fill: #ff6f61; }
@@ -88,8 +86,7 @@
       position: fixed;
       top: 60px; left: -250px;
       width: 250px; height: calc(100% - 60px);
-      background: #1e1e1e;
-      padding: 20px;
+      background: #1e1e1e; padding: 20px;
       transition: left 0.3s ease;
       z-index: 1000;
       border-right: 1px solid #333;
@@ -110,8 +107,7 @@
       position: fixed;
       top: 60px; right: -250px;
       width: 250px; height: calc(100% - 60px);
-      background: #1e1e1e;
-      padding: 20px;
+      background: #1e1e1e; padding: 20px;
       transition: right 0.3s ease;
       z-index: 1000;
       border-left: 1px solid #333;
@@ -131,10 +127,8 @@
     }
     .chat-container {
       flex: 1; overflow-y: auto;
-      background: #1e1e1e;
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 16px;
+      background: #1e1e1e; padding: 16px;
+      border-radius: 8px; margin-bottom: 16px;
       display: flex; flex-direction: column;
     }
     .chat-container::-webkit-scrollbar { width: 8px; }
@@ -144,11 +138,13 @@
     }
     .chat-container::-webkit-scrollbar-button { display: none; }
     /* Input Container */
-    .input-container { display: flex; align-items: center; }
+    .input-container {
+      display: flex; align-items: center;
+    }
     #message-input {
-      flex: 1; padding: 12px; border: none; border-radius: 8px;
-      font-size: 16px; margin-right: 8px;
-      background: #2a2a2a; color: #e0e0e0;
+      flex: 1; padding: 12px; border: none;
+      border-radius: 8px; font-size: 16px;
+      margin-right: 8px; background: #2a2a2a; color: #e0e0e0;
     }
     #send-button {
       background: #ff6f61; border: none;
@@ -166,8 +162,8 @@
     .settings-close-btn {
       position: absolute; top: 8px; right: 8px;
       background: transparent; border: none;
-      font-size: 24px; color: #e0e0e0; cursor: pointer;
-      -webkit-app-region: no-drag;
+      font-size: 24px; color: #e0e0e0;
+      cursor: pointer; -webkit-app-region: no-drag;
     }
     .settings-close-btn:hover { color: #ff6f61; }
     /* Settings Panel Tabs */
@@ -183,7 +179,7 @@
     .settings-tab-btn:hover { background: #3a3a3a; }
     .settings-tab-btn.active { background: #ff6f61; }
     .settings-tab-btn span { font-size: 14px; }
-    .settings-content { /* Placeholder area for settings tab content */ }
+    .settings-content { }
     /* Character Management - Additional Styles */
     .character-bar {
       display: flex; gap: 10px; margin-bottom: 16px;
@@ -193,7 +189,7 @@
       padding: 8px; border-radius: 8px; cursor: pointer;
     }
     .char-btn:hover { background: #3a3a3a; }
-    .character-list { /* Placeholder for character profiles */ }
+    .character-list { }
     /* Character Creation Form */
     .character-creation { padding: 8px; }
     .character-creation > div { margin-bottom: 16px; }

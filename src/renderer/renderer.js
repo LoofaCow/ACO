@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const rightDrawerContent = document.getElementById('right-drawer-content');
   let activeRightDrawerType = null; // 'characters' for Character management, 'personas' for Persona management
 
-  // For Character management (right drawer) - default view shows horizontal icon buttons
+  // For Character management (right drawer) - default view shows the icon buttons
   if (iconPersonas) {
     iconPersonas.addEventListener('click', () => {
       if (activeRightDrawerType === 'characters') {
@@ -103,16 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
         activeRightDrawerType = null;
       } else {
         rightDrawerTitle.innerText = "Persona Management";
-        rightDrawerContent.innerHTML = "<p>Persona management content goes here.</p>";
+        rightDrawerContent.innerHTML = getPersonaManagementDefault();
         rightDrawer.classList.add('open');
         activeRightDrawerType = 'personas';
         const settingsPanel = document.getElementById('settings-panel');
         settingsPanel.classList.remove('active');
         document.getElementById('chat-interface').style.display = 'flex';
         iconSettings.classList.remove('icon-active');
+        attachPersonaDefaultEvents();
       }
     });
   }
+  
 
   // Settings Panel Close Button
   const settingsCloseBtn = document.getElementById('settings-close-btn');
@@ -151,15 +153,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Function to return API form HTML
+    // Function to return API form HTML with Default Model dropdown
   function getApiFormHtml() {
     return `
       <div>
         <label for="api-url">API URL:</label><br>
-        <input type="text" id="api-url" placeholder="https://api.example.com" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
+        <input type="text" id="api-url" placeholder="https://api.example.com"
+          style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
+        
         <label for="api-key">API Key:</label><br>
-        <input type="text" id="api-key" placeholder="Your API key here" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
-        <button id="api-connect-btn" style="padding:8px 16px; border:none; border-radius:4px; background:#ff6f61; color:#fff; cursor:pointer;">Connect</button>
+        <input type="text" id="api-key" placeholder="Your API key here"
+          style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
+
+        <label for="default-model">Default Model:</label><br>
+        <select id="default-model" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;">
+          <option value="model-1">Model 1</option>
+          <option value="model-2">Model 2</option>
+          <option value="model-3">Model 3</option>
+        </select><br>
+
+        <button id="api-connect-btn"
+          style="padding:8px 16px; border:none; border-radius:4px; background:#ff6f61; color:#fff; cursor:pointer;">
+          Connect
+        </button>
       </div>
     `;
   }
@@ -209,15 +225,30 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  // Function to return Character Creation Form HTML
+    // Function to return Character Creation Form HTML with confirm button aligned to the right
   function getCharacterCreationForm() {
     return `
       <div class="character-creation">
-        <div style="display: flex; align-items: center; margin-bottom: 16px;">
-          <div style="width: 80px; height: 80px; background: #2a2a2a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
-            <span style="font-size: 36px;">?</span>
+        <div style="display: flex; flex-direction: column; margin-bottom: 16px;">
+          <div style="display: flex; align-items: flex-end; margin-bottom: 8px;">
+            <div style="width: 80px; height: 100px; background: #2a2a2a; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="8" fill="#2a2a2a"/>
+                <text x="50%" y="50%" fill="#e0e0e0" font-size="24" font-family="Segoe UI" text-anchor="middle" alignment-baseline="middle">?</text>
+              </svg>
+            </div>
+            <div style="display: flex; flex-direction: column; flex: 1; position: relative;">
+              <input type="text" id="char-name" placeholder="Name"
+                style="width: 100%; padding: 8px; border: none; border-radius: 4px; background: #2a2a2a; color: #e0e0e0;">
+              <!-- Confirm (check mark) button aligned to the right -->
+              <button id="confirm-char-btn" title="Create Character"
+                style="background: transparent; border: none; cursor: pointer; position: absolute; right: 0; top: -30px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+                  <path d="M9 16.2l-3.5-3.5L4 14.2l5 5 12-12-1.5-1.5z"/>
+                </svg>
+              </button>
+            </div>
           </div>
-          <input type="text" id="char-name" placeholder="Character Name" style="flex: 1; padding: 8px; border: none; border-radius: 4px; background: #2a2a2a; color: #e0e0e0;">
         </div>
         <div style="margin-bottom: 16px;">
           <textarea id="char-description" placeholder="Character Description" style="width:100%; padding:8px; border:none; border-radius:4px; background:#2a2a2a; color:#e0e0e0;" rows="3"></textarea>
@@ -228,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
   }
-
   // Attach event listeners for default Character Management buttons
   function attachCharacterDefaultEvents() {
     const defaultCreateCharBtn = document.getElementById('default-create-char-btn');
@@ -241,6 +271,75 @@ document.addEventListener('DOMContentLoaded', () => {
     if (defaultImportCharBtn) {
       defaultImportCharBtn.addEventListener('click', () => {
         alert("Import Character clicked!");
+      });
+    }
+  }
+
+    // Function to return Persona Creation Form HTML with confirm button aligned to the right
+  function getPersonaCreationForm() {
+    return `
+      <div class="persona-creation">
+        <div style="display: flex; flex-direction: column; margin-bottom: 16px;">
+          <div style="display: flex; align-items: flex-end; margin-bottom: 8px;">
+            <div style="width: 80px; height: 100px; background: #2a2a2a; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="8" fill="#2a2a2a"/>
+                <text x="50%" y="50%" fill="#e0e0e0" font-size="24" font-family="Segoe UI" text-anchor="middle" alignment-baseline="middle">?</text>
+              </svg>
+            </div>
+            <div style="display: flex; flex-direction: column; flex: 1; position: relative;">
+              <input type="text" id="persona-name" placeholder="Name"
+                style="width: 100%; padding: 8px; border: none; border-radius: 4px; background: #2a2a2a; color: #e0e0e0;">
+              <!-- Confirm (check mark) button aligned to the right -->
+              <button id="confirm-persona-btn" title="Create Persona"
+                style="background: transparent; border: none; cursor: pointer; position: absolute; right: 0; top: -30px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+                  <path d="M9 16.2l-3.5-3.5L4 14.2l5 5 12-12-1.5-1.5z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <textarea id="persona-description" placeholder="Persona Description" style="width:100%; padding:8px; border:none; border-radius:4px; background:#2a2a2a; color:#e0e0e0;" rows="3"></textarea>
+        </div>
+      </div>
+    `;
+  }
+
+    // Function to return default Persona Management content (before selecting create)
+  function getPersonaManagementDefault() {
+    return `
+      <p>No persona selected. Choose an option:</p>
+      <div class="character-bar">
+        <button class="char-btn" id="default-create-persona-btn" title="Create Persona">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+            <path d="M12 5v14m-7-7h14" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="char-btn" id="default-import-persona-btn" title="Import Persona">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM13 9V3.5L18.5 9H13z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="character-list">
+        <p>Persona profiles will be displayed here.</p>
+      </div>
+    `;
+  }
+    // Attach event listeners for default Persona Management buttons
+  function attachPersonaDefaultEvents() {
+    const defaultCreatePersonaBtn = document.getElementById('default-create-persona-btn');
+    const defaultImportPersonaBtn = document.getElementById('default-import-persona-btn');
+    if (defaultCreatePersonaBtn) {
+      defaultCreatePersonaBtn.addEventListener('click', () => {
+        rightDrawerContent.innerHTML = getPersonaCreationForm();
+      });
+    }
+    if (defaultImportPersonaBtn) {
+      defaultImportPersonaBtn.addEventListener('click', () => {
+        alert("Import Persona clicked!");
       });
     }
   }
@@ -290,7 +389,5 @@ document.addEventListener('DOMContentLoaded', () => {
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }, 500);
   });
-  messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') { sendButton.click(); }
-  });
+  messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { sendButton.click(); } });
 });
