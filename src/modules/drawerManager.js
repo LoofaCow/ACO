@@ -1,32 +1,31 @@
+// src/modules/drawerManager.js
+
 export class DrawerManager {
-    constructor(ui, notifications) {
-      this.ui = ui;
-      this.notifications = notifications;
-      this.activeRightDrawerType = null;
+    constructor(uiManager) {
+      this.ui = uiManager;
+      this.leftDrawer = this.ui.getElement('drawer');
+      this.rightDrawer = this.ui.getElement('rightDrawer');
+      // Keep track of the right drawer’s active content
+      this.rightDrawerActiveContent = null;
     }
   
     toggleLeftDrawer() {
-      this.ui.toggleDrawer(this.ui.elements.drawer);
+      if (!this.leftDrawer) return;
+      this.ui.toggleClass(this.leftDrawer, 'open');
     }
   
-    closeLeftDrawer() {
-      this.ui.elements.drawer.classList.remove('open');
-    }
+    toggleRightDrawer(contentType) {
+      if (!this.rightDrawer) return;
   
-    toggleRightDrawer(type, title, contentGenerator) {
-      if (this.activeRightDrawerType === type) {
-        this.closeRightDrawer();
-        return;
+      // If the user toggles the same content, close it
+      if (this.rightDrawerActiveContent === contentType) {
+        this.rightDrawer.classList.remove('open');
+        this.rightDrawerActiveContent = null;
+      } else {
+        this.rightDrawer.classList.add('open');
+        this.rightDrawerActiveContent = contentType;
+        // (Optional) load content for that specific contentType here
       }
-  
-      this.ui.elements.rightDrawerTitle.textContent = title;
-      this.ui.updateContentArea(this.ui.elements.rightDrawerContent, contentGenerator());
-      this.ui.elements.rightDrawer.classList.add('open');
-      this.activeRightDrawerType = type;
-    }
-  
-    closeRightDrawer() {
-      this.ui.elements.rightDrawer.classList.remove('open');
-      this.activeRightDrawerType = null;
     }
   }
+  

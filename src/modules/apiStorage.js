@@ -1,7 +1,9 @@
-const fs = require('fs').promises;
-const path = require('path');
+// src/modules/apiStorage.js
 
-const API_DIR = path.join(__dirname, '../data/api/');
+import fs from 'fs/promises';
+import path from 'path';
+
+const API_DIR = path.join(process.cwd(), 'src', 'data', 'api');
 const DEFAULT_FILE = path.join(API_DIR, 'default.json');
 
 class ApiStorage {
@@ -10,6 +12,7 @@ class ApiStorage {
   }
 
   static async saveConnection(name, url, apiKey) {
+    await this.initialize();
     const filePath = path.join(API_DIR, `${name}.json`);
     const connectionData = { name, url, apiKey };
     await fs.writeFile(filePath, JSON.stringify(connectionData, null, 2));
@@ -17,38 +20,39 @@ class ApiStorage {
   }
 
   static async getConnections() {
+    await this.initialize();
     try {
       const files = await fs.readdir(API_DIR);
       return Promise.all(
         files
-          .filter(file => file.endsWith('.json') && file !== 'default.json')
-          .map(async file => {
-            const data = await fs.readFile(path.join(API_DIR, file), 'utf8');
+          .filter(f=>f.endsWith('.json') && f!=='default.json')
+          .map(async file=>{
+            const data=await fs.readFile(path.join(API_DIR,file),'utf8');
             return JSON.parse(data);
           })
       );
-    } catch (error) {
+    } catch (err) {
       return [];
     }
   }
 
-  // Now saves both default connection and default model
-  static async saveDefaultConnection(name, model = null) {
+  static async saveDefaultConnection(name, model=null) {
+    await this.initialize();
     await fs.writeFile(
       DEFAULT_FILE,
-      JSON.stringify({ defaultConnection: name, defaultModel: model }, null, 2)
+      JSON.stringify({defaultConnection:name,defaultModel:model},null,2)
     );
   }
 
-  // Returns an object with defaultConnection and defaultModel
   static async getDefaultConnection() {
+    await this.initialize();
     try {
-      const data = await fs.readFile(DEFAULT_FILE, 'utf8');
+      const data=await fs.readFile(DEFAULT_FILE,'utf8');
       return JSON.parse(data);
-    } catch (error) {
-      return { defaultConnection: null, defaultModel: null };
+    } catch(err) {
+      return { defaultConnection:null, defaultModel:null };
     }
   }
 }
 
-module.exports = ApiStorage;
+export default ApiStorage;

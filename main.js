@@ -30,19 +30,52 @@ function createWindow() {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
     require('electron-reloader')(module);
   }
-
-  ipcMain.handle('window-control', (_, action) => {
-    switch(action) {
-      case 'minimize': mainWindow.minimize(); break;
-      case 'maximize': 
-        mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
-        break;
-      case 'close': mainWindow.close(); break;
-    }
-  });
-
-  ipcMain.handle('get-app-version', () => app.getVersion());
 }
+
+// Logging popout toggle handler
+ipcMain.handle('toggle-logging-popout', () => {
+  console.log("toggle-logging-popout invoked");
+  if (loggingWindow) {
+    loggingWindow.close();
+    loggingWindow = null;
+    return false;
+  } else {
+    loggingWindow = new BrowserWindow({
+      width: 600,
+      height: 400,
+      title: "Logging",
+      webPreferences: {
+        preload: path.join(__dirname, 'src/preload.js'),
+        nodeIntegration: true,
+        contextIsolation: false
+      }
+    });
+    loggingWindow.loadFile(path.join(__dirname, 'src/renderer/logging.html'));
+    loggingWindow.on('closed', () => {
+      loggingWindow = null;
+    });
+    return true;
+  }
+});
+
+// Forward new-log messages from main window to logging window
+ipcMain.on('new-log', (event, message) => {
+  if (loggingWindow) {
+    loggingWindow.webContents.send('new-log', message);
+  }
+});
+
+ipcMain.handle('window-control', (_, action) => {
+  switch(action) {
+    case 'minimize': mainWindow.minimize(); break;
+    case 'maximize': 
+      mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
+      break;
+    case 'close': mainWindow.close(); break;
+  }
+});
+
+ipcMain.handle('get-app-version', () => app.getVersion());
 
 app.whenReady().then(() => {
   createWindow();
@@ -64,37 +97,4 @@ app.on('web-contents-created', (event, contents) => {
   contents.setWindowOpenHandler(() => ({
     action: 'deny'
   }));
-});
-
-// Logging popout toggle handler
-ipcMain.handle('toggle-logging-popout', () => {
-  console.log("toggle-logging-popout invoked");
-  if (loggingWindow) {
-    loggingWindow.close();
-    loggingWindow = null;
-    return false;
-  } else {
-    loggingWindow = new BrowserWindow({
-      width: 600,
-      height: 400,
-      title: "Logging",  // Updated title
-      webPreferences: {
-        preload: path.join(__dirname, 'src/preload.js'),
-        nodeIntegration: true,
-        contextIsolation: false
-      }
-    });
-    loggingWindow.loadFile(path.join(__dirname, 'src/renderer/logging.html'));
-    loggingWindow.on('closed', () => {
-      loggingWindow = null;
-    });
-    return true;
-  }
-});
-
-// Forward new-log messages from main window to logging window
-ipcMain.on('new-log', (event, message) => {
-  if (loggingWindow) {
-    loggingWindow.webContents.send('new-log', message);
-  }
 });

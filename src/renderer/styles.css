@@ -437,7 +437,7 @@ html, body {
   border-color: #ff6f61;
 }
 
-/* Custom scrollbar for textareas in formatting tab (similar to chat container) */
+/* Custom scrollbar for textareas in formatting tab */
 .formatting-tab textarea::-webkit-scrollbar {
   width: 8px;
 }
