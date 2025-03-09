@@ -32,16 +32,21 @@ class ApiStorage {
     }
   }
 
-  static async saveDefaultConnection(name) {
-    await fs.writeFile(DEFAULT_FILE, JSON.stringify({ defaultConnection: name }, null, 2));
+  // Now saves both default connection and default model
+  static async saveDefaultConnection(name, model = null) {
+    await fs.writeFile(
+      DEFAULT_FILE,
+      JSON.stringify({ defaultConnection: name, defaultModel: model }, null, 2)
+    );
   }
 
+  // Returns an object with defaultConnection and defaultModel
   static async getDefaultConnection() {
     try {
       const data = await fs.readFile(DEFAULT_FILE, 'utf8');
-      return JSON.parse(data).defaultConnection;
+      return JSON.parse(data);
     } catch (error) {
-      return null;
+      return { defaultConnection: null, defaultModel: null };
     }
   }
 }

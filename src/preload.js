@@ -1,22 +1,22 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Using invoke so that it matches the ipcMain.handle in main.js
+  // Use invoke so that windowControl returns a promise
   windowControl: (action) => ipcRenderer.invoke('window-control', action),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
-  platform: process.platform
+  platform: process.platform,
+  toggleLoggingPopout: () => ipcRenderer.invoke('toggle-logging-popout')
 });
 
-// Security filters for IPC
 contextBridge.exposeInMainWorld('secureAPI', {
   send: (channel, data) => {
-    const validChannels = ['config-save', 'connection-test'];
+    const validChannels = ['config-save', 'connection-test', 'new-log'];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
   },
   receive: (channel, func) => {
-    const validChannels = ['config-update', 'connection-status'];
+    const validChannels = ['config-update', 'connection-status', 'new-log'];
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }

@@ -4,6 +4,7 @@ const path = require('path');
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'false';
 
 let mainWindow;
+let loggingWindow = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -15,43 +16,34 @@ function createWindow() {
     titleBarStyle: 'hidden',
     webPreferences: {
       preload: path.join(__dirname, 'src/preload.js'),
-      nodeIntegration: true,         // Enabled so that require() works in renderer
-      contextIsolation: false,       // Disabled for easier module access in renderer
-      sandbox: false,                // Disabled to allow node integration
+      nodeIntegration: true,
+      contextIsolation: false,
+      sandbox: false,
       webSecurity: true,
       allowRunningInsecureContent: false
     }
   });
 
-  // Load main window
   mainWindow.loadFile(path.join(__dirname, 'src/renderer/index.html'));
 
-  // Development tools
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
     require('electron-reloader')(module);
   }
 
-  // Window controls handler
   ipcMain.handle('window-control', (_, action) => {
     switch(action) {
-      case 'minimize': 
-        mainWindow.minimize(); 
-        break;
+      case 'minimize': mainWindow.minimize(); break;
       case 'maximize': 
         mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
         break;
-      case 'close': 
-        mainWindow.close(); 
-        break;
+      case 'close': mainWindow.close(); break;
     }
   });
 
-  // Version handler
   ipcMain.handle('get-app-version', () => app.getVersion());
 }
 
-// App lifecycle
 app.whenReady().then(() => {
   createWindow();
   
@@ -64,7 +56,6 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-// Security headers middleware
 app.on('web-contents-created', (event, contents) => {
   contents.on('will-navigate', (event) => {
     event.preventDefault();
@@ -73,4 +64,37 @@ app.on('web-contents-created', (event, contents) => {
   contents.setWindowOpenHandler(() => ({
     action: 'deny'
   }));
+});
+
+// Logging popout toggle handler
+ipcMain.handle('toggle-logging-popout', () => {
+  console.log("toggle-logging-popout invoked");
+  if (loggingWindow) {
+    loggingWindow.close();
+    loggingWindow = null;
+    return false;
+  } else {
+    loggingWindow = new BrowserWindow({
+      width: 600,
+      height: 400,
+      title: "Logging",  // Updated title
+      webPreferences: {
+        preload: path.join(__dirname, 'src/preload.js'),
+        nodeIntegration: true,
+        contextIsolation: false
+      }
+    });
+    loggingWindow.loadFile(path.join(__dirname, 'src/renderer/logging.html'));
+    loggingWindow.on('closed', () => {
+      loggingWindow = null;
+    });
+    return true;
+  }
+});
+
+// Forward new-log messages from main window to logging window
+ipcMain.on('new-log', (event, message) => {
+  if (loggingWindow) {
+    loggingWindow.webContents.send('new-log', message);
+  }
 });

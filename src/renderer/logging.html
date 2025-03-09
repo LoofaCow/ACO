@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Logging</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="logging-tab popout-logging">
+    <div class="logging-header">
+      <h2>Logging</h2>
+      <button id="popin-logs" class="icon-btn popout-btn" title="Pop In Logs">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#e0e0e0">
+          <!-- Reverse popout icon -->
+          <path d="M10 3L3 10l1.414 1.414L9 5.828V17h2V5.828l4.586 4.586L21 10 14 3z"/>
+          <path d="M5 19h14v2H5z"/>
+        </svg>
+      </button>
+    </div>
+    <div id="log-container" class="log-container">
+      <!-- Log entries will appear here -->
+    </div>
+    <button id="clear-logs" class="primary-btn clear-btn">Clear Logs</button>
+  </div>
+  <script>
+    const { ipcRenderer } = require('electron');
+    const logContainer = document.getElementById('log-container');
+
+    ipcRenderer.on('new-log', (event, message) => {
+      const logEntry = document.createElement('div');
+      logEntry.className = 'log-entry';
+      logEntry.textContent = message;
+      logContainer.appendChild(logEntry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    });
+
+    document.getElementById('clear-logs').addEventListener('click', () => {
+      logContainer.innerHTML = '';
+    });
+
+    document.getElementById('popin-logs').addEventListener('click', () => {
+      ipcRenderer.invoke('toggle-logging-popout');
+    });
+  </script>
+</body>
+</html>
