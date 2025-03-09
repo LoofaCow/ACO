@@ -153,10 +153,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-    // Function to return API form HTML with Default Model dropdown
+    // Function to return API form HTML with structured API setup and default chat options
   function getApiFormHtml() {
     return `
       <div>
+        <label for="api-name">API Name:</label><br>
+        <input type="text" id="api-name" placeholder="My API Connection"
+          style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
+
         <label for="api-url">API URL:</label><br>
         <input type="text" id="api-url" placeholder="https://api.example.com"
           style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
@@ -165,17 +169,28 @@ document.addEventListener('DOMContentLoaded', () => {
         <input type="text" id="api-key" placeholder="Your API key here"
           style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;"><br>
 
+        <button id="api-connect-btn"
+          style="padding:8px 16px; border:none; border-radius:4px; background:#ff6f61; color:#fff; cursor:pointer;">
+          Connect
+        </button><br>
+
+        <div style="border-top: 2px solid #444; padding-top: 8px; margin-top: 8px; text-align: center; color: #e0e0e0; font-weight: bold;">
+          Default Chat
+        </div>
+
+        <label for="default-connection">Default Connection:</label><br>
+        <select id="default-connection" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;">
+          <option value="connection-1">Connection 1</option>
+          <option value="connection-2">Connection 2</option>
+          <option value="connection-3">Connection 3</option>
+        </select><br>
+
         <label for="default-model">Default Model:</label><br>
         <select id="default-model" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;">
           <option value="model-1">Model 1</option>
           <option value="model-2">Model 2</option>
           <option value="model-3">Model 3</option>
         </select><br>
-
-        <button id="api-connect-btn"
-          style="padding:8px 16px; border:none; border-radius:4px; background:#ff6f61; color:#fff; cursor:pointer;">
-          Connect
-        </button>
       </div>
     `;
   }
