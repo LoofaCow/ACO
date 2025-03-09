@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron');
+const apiStorage = require('../modules/apiStorage'); // Import API storage module
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded and parsed.');
@@ -195,26 +196,63 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  // Function to load API form in settings-content
-  function loadApiForm() {
-    settingsContent.innerHTML = getApiFormHtml();
-    attachApiFormEvents();
-  }
-
-  // Attach event listener to API Connect button
+    // Attach event listener to API Connect button
   function attachApiFormEvents() {
     const apiConnectBtn = document.getElementById('api-connect-btn');
+    
     if (apiConnectBtn) {
-      apiConnectBtn.addEventListener('click', () => {
-        const apiUrl = document.getElementById('api-url').value.trim();
-        const apiKey = document.getElementById('api-key').value.trim();
-        // Simulated API connection check:
-        if (apiUrl.startsWith('http') && apiKey && apiKey.toLowerCase() !== 'error') {
-          showNotification("Connected", "success");
-        } else {
-          showNotification("Error", "error");
-        }
-      });
+        apiConnectBtn.addEventListener('click', () => {
+            const apiName = document.getElementById('api-name').value.trim();
+            const apiUrl = document.getElementById('api-url').value.trim();
+            const apiKey = document.getElementById('api-key').value.trim();
+
+            if (!apiName || !apiUrl || !apiKey) {
+                showNotification("Please fill in all fields", "error");
+                return;
+            }
+
+            // Save connection as its own JSON file
+            apiStorage.saveConnection(apiName, apiUrl, apiKey);
+            showNotification("API Connection Saved", "success");
+
+            updateDefaultConnectionsDropdown(); // Refresh dropdown immediately
+        });
+    }
+
+    // Attach event listener to default connections dropdown
+    const defaultConnectionSelect = document.getElementById('default-connection');
+    if (defaultConnectionSelect) {
+        defaultConnectionSelect.addEventListener('change', () => {
+            const selectedConnection = defaultConnectionSelect.value;
+            apiStorage.saveDefaultConnection(selectedConnection);
+        });
+    }
+  }
+
+    // Function to update the Default Connections dropdown and persist selection
+  function updateDefaultConnectionsDropdown() {
+    const defaultConnectionSelect = document.getElementById('default-connection');
+    if (!defaultConnectionSelect) return;
+
+    defaultConnectionSelect.innerHTML = ''; // Clear existing options
+
+    const connections = apiStorage.getConnections();
+
+    if (connections.length === 0) {
+        defaultConnectionSelect.innerHTML = '<option value="">No saved connections</option>';
+    } else {
+        connections.forEach(conn => {
+            const option = document.createElement('option');
+            option.value = conn.name;
+            option.textContent = conn.name;
+            defaultConnectionSelect.appendChild(option);
+        });
+    }
+
+    // Load and apply the last selected default connection
+    const savedDefault = apiStorage.getDefaultConnection();
+    if (savedDefault && connections.some(conn => conn.name === savedDefault)) {
+        defaultConnectionSelect.value = savedDefault;
     }
   }
 
@@ -405,4 +443,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
   });
   messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { sendButton.click(); } });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateDefaultConnectionsDropdown(); // Load saved API connections on startup
+  });
 });
