@@ -154,8 +154,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-    // Function to return API form HTML with structured API setup and default chat options
+    // Function to return API form HTML dynamically with real saved connections
   function getApiFormHtml() {
+    const connections = apiStorage.getConnections(); // Get saved connections
+    const savedDefault = apiStorage.getDefaultConnection(); // Get last selected connection
+
+    let connectionOptions = '';
+    if (connections.length === 0) {
+        connectionOptions = '<option value="">No saved connections</option>';
+    } else {
+        connections.forEach(conn => {
+            const isSelected = savedDefault === conn.name ? 'selected' : '';
+            connectionOptions += `<option value="${conn.name}" ${isSelected}>${conn.name}</option>`;
+        });
+    }
+
     return `
       <div>
         <label for="api-name">API Name:</label><br>
@@ -181,22 +194,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <label for="default-connection">Default Connection:</label><br>
         <select id="default-connection" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;">
-          <option value="connection-1">Connection 1</option>
-          <option value="connection-2">Connection 2</option>
-          <option value="connection-3">Connection 3</option>
+          ${connectionOptions}
         </select><br>
 
         <label for="default-model">Default Model:</label><br>
         <select id="default-model" style="width:100%; padding:8px; margin:8px 0; border-radius:4px; border:none; background:#2a2a2a; color:#e0e0e0;">
-          <option value="model-1">Model 1</option>
-          <option value="model-2">Model 2</option>
-          <option value="model-3">Model 3</option>
+          <!-- Options will be populated dynamically -->
         </select><br>
+
+        <button id="save-default-btn"
+          style="margin-top: 12px; padding:8px 16px; border:none; border-radius:4px; background:#4CAF50; color:#fff; cursor:pointer;">
+          Save Default
+        </button><br>
       </div>
     `;
   }
 
-    // Attach event listener to API Connect button
+  // Attach event listeners for API form buttons
   function attachApiFormEvents() {
     const apiConnectBtn = document.getElementById('api-connect-btn');
     
@@ -215,17 +229,63 @@ document.addEventListener('DOMContentLoaded', () => {
             apiStorage.saveConnection(apiName, apiUrl, apiKey);
             showNotification("API Connection Saved", "success");
 
-            updateDefaultConnectionsDropdown(); // Refresh dropdown immediately
+            // Reload API settings tab dynamically
+            const settingsContent = document.getElementById('settings-content');
+            settingsContent.innerHTML = getApiFormHtml();
+            attachApiFormEvents(); // Reattach event listeners
         });
     }
 
-    // Attach event listener to default connections dropdown
-    const defaultConnectionSelect = document.getElementById('default-connection');
-    if (defaultConnectionSelect) {
-        defaultConnectionSelect.addEventListener('change', () => {
-            const selectedConnection = defaultConnectionSelect.value;
-            apiStorage.saveDefaultConnection(selectedConnection);
-        });
+  updateDefaultModelDropdown();
+
+  // Attach event listener to "Save Default" button
+  const saveDefaultBtn = document.getElementById('save-default-btn');
+  if (saveDefaultBtn) {
+      saveDefaultBtn.addEventListener('click', () => {
+          const selectedConnection = document.getElementById('default-connection').value;
+          if (selectedConnection) {
+              apiStorage.saveDefaultConnection(selectedConnection);
+              showNotification("Default Connection Saved", "success");
+
+              // Now update the API module to use the newly selected default connection
+              // We get the connection object from our storage and update openai
+              const connections = apiStorage.getConnections();
+              const newDefault = connections.find(conn => conn.name === selectedConnection);
+              if (newDefault) {
+                  const api = require('../modules/api');
+                  api.updateAPIConnection(newDefault);
+              }
+          } else {
+              showNotification("No connection selected", "error");
+          }
+      });
+  }
+}
+
+    // Function to update the Default Model dropdown with real models from the API
+  async function updateDefaultModelDropdown() {
+    const defaultModelSelect = document.getElementById('default-model');
+    if (!defaultModelSelect) return;
+    
+    // Clear any existing options
+    defaultModelSelect.innerHTML = '';
+
+    // Fetch models using the new API module function
+    const models = await apiStorage.getModels ? await apiStorage.getModels() : []; 
+    // If you're using our new getModels, you might need to import it from api.js
+    // For example:
+    // const { getModels } = require('../modules/api');
+    // const models = await getModels();
+
+    if (models.length === 0) {
+      defaultModelSelect.innerHTML = '<option value="">No models available</option>';
+    } else {
+      models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model.id || model.name; // adjust property based on API response structure
+        option.textContent = model.name || model.id;
+        defaultModelSelect.appendChild(option);
+      });
     }
   }
 
@@ -444,7 +504,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { sendButton.click(); } });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    updateDefaultConnectionsDropdown(); // Load saved API connections on startup
+  document.addEventListener('DOMContentLoaded', async () => {
+    const settingsContent = document.getElementById('settings-content');
+    settingsContent.innerHTML = getApiFormHtml();
+    attachApiFormEvents();
+    
+    // Update the default model dropdown
+    await updateDefaultModelDropdown();
+
+    // Set the API module to use the saved default connection
+    const api = require('../modules/api');
+    api.setDefaultAPIConnection();
   });
 });

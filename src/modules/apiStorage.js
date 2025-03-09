@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios'); // Ensure axios is installed (npm install axios)
 
 const apiDir = path.join(__dirname, '../data/api/');
 const defaultFilePath = path.join(apiDir, 'default.json');
@@ -46,5 +47,30 @@ module.exports = {
     saveConnection,
     getConnections,
     saveDefaultConnection,
-    getDefaultConnection
+    getDefaultConnection };
+
+    // Function to fetch available models from Featherless AI
+async function fetchFeatherlessModels(apiUrl, apiKey) {
+    try {
+        const response = await axios.get(`${apiUrl}/v1/models`, {
+            headers: { 'Authorization': `Bearer ${apiKey}` }
+        });
+
+        if (response.data && response.data.models) {
+            return response.data.models; // Return list of available models
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error("Error fetching models:", error);
+        return [];
+    }
+}
+
+module.exports = {
+    saveConnection,
+    getConnections,
+    saveDefaultConnection,
+    getDefaultConnection,
+    fetchFeatherlessModels // Export the new function
 };
