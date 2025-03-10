@@ -1,83 +1,148 @@
-The ACO project is an Electron-based desktop chat application designed as an “Artificial Companion.” It integrates a chat interface with an API backend (using OpenAI) and includes various settings for API connections, logging, and formatting. The application is structured in a modular way, with clear separation between the main process, renderer process, and supporting modules.
+<p align="center">
+  <img src="ACO-removebg-preview.png" alt="ACO Logo" width="200" />
+</p>
 
-Structure & Key Components
-1. Main Process & Application Setup
-main.js:
-Purpose: Sets up the Electron main window and handles core IPC events.
-Highlights:
-Creates a BrowserWindow with custom dimensions and window controls.
-Loads index.html from the renderer folder.
-Includes handlers for window control actions (minimize, maximize, close) and a special handler to toggle a separate logging window.
-Note: It has security warnings enabled (with nodeIntegration and contextIsolation set in a particular way), which is common in desktop apps but something to keep an eye on for production use.
-2. Preload & Renderer Security
-preload.js:
-Purpose: Bridges the gap between Node.js and the renderer process securely.
-Highlights:
-Exposes safe APIs to the renderer through electronAPI and secureAPI for window control, version fetching, logging, and IPC communication.
-3. API Management & Storage
-api.js:
-Purpose: Handles API communication (sending messages, fetching models) using OpenAI’s API.
-Highlights:
-Constructs prompts by combining a system prompt and a context template with the user’s message.
-Uses the Fetch API to communicate with the backend endpoint and extract responses.
-apiStorage.js:
-Purpose: Manages local storage of API connection details.
-Highlights:
-Saves individual connection files and a default connection JSON.
-Reads stored connection details from the file system.
-4. Renderer (User Interface) Components
-HTML & CSS:
+<h1 align="center">ACO - Artificial Companion Olive</h1>
 
+<p align="center">
+  <a href="https://electronjs.org/">
+    <img src="https://img.shields.io/badge/Electron-28.x.x-9cf.svg?logo=electron&logoColor=white" alt="Electron Version" />
+  </a>
+  <a href="https://openai.com/">
+    <img src="https://img.shields.io/badge/OpenAI-API-blue.svg?logo=openai&logoColor=white" alt="OpenAI API" />
+  </a>
+  <img src="https://img.shields.io/badge/Platform-Windows%20|%20Mac%20|%20Linux-informational.svg?logo=github" alt="Platform" />
+  <img src="https://img.shields.io/github/license/your-username/aco" alt="License" />
+</p>
 
-index.html & logging.html:
-Define the layout for the main chat interface and a separate logging window.
-Use multiple CSS files (styles.css, styles_base.css, styles_layout.css, styles_components.css) to organize global resets, layout, and UI components (like chat bubbles and settings panels).
-renderer.js:
+<p align="center">
+  <i>An Electron-based desktop chat application designed as an “Artificial Companion,” integrating a chat interface with an OpenAI backend, plus flexible settings and logging.</i>
+</p>
 
+---
 
-Purpose: Acts as the entry point for the renderer process by initializing the core functionalities.
-renderer_core.js:
+## Table of Contents
+1. [Features](#features)
+2. [Screenshots](#screenshots)
+3. [Getting Started](#getting-started)
+4. [Project Structure](#project-structure)
+5. [Usage](#usage)
+6. [Contributing](#contributing)
+7. [License](#license)
 
+---
 
-Purpose: Sets up core event listeners and global functionalities.
-Highlights:
-Registers events for navigation (hamburger menu, settings, and right drawer toggles).
-Implements custom logging by overriding console.log and console.error to also append messages to the UI log container.
-Manages window control actions through the exposed Electron APIs.
-renderer_chat.js:
+## Features
+- **Modular Design** – Clear separation between the main process, renderer process, and supporting modules.
+- **API Connections** – Easily configure multiple OpenAI endpoints and switch between them.
+- **Customizable Prompts** – Adjust system prompts, context templates, advanced parameters (like max tokens, temperature, etc.).
+- **Integrated Logging** – View logs in-app or (planned) pop out into a separate window for debugging.
+- **Coral-Themed UI** – A stylish, cohesive design featuring bubble-style buttons and drawers.
 
+---
 
-Purpose: Manages the chat interface.
-Highlights:
-Captures user messages, appends them to the chat container, and then uses the API module to fetch a bot response.
-Automatically scrolls the chat view to the bottom as new messages are added.
-renderer_settings.js & Settings Modules:
+## Screenshots
+*(Coming soon! Feel free to insert your own screenshots or GIFs here.)*
 
+---
 
-Purpose: Provide a settings panel with multiple tabs.
-Submodules:
-settings_api.js:
-Lets users add new API connections and choose a default connection and model.
-Provides a model search/filter function and updates the dropdown based on available models.
-settings_logging.js:
-Manages the logging tab, including features like clearing logs and toggling a pop-out logging window.
-settings_formatting.js:
-Enables customization of the context template and system prompt that shape the bot’s responses.
-Advanced & Extensions Tabs:
-Currently placeholders for future functionality (“Coming Soon…” messages).
+## Getting Started
 
-Functionality in a Nutshell
-Chat Interaction:
- The user sends a message via the chat interface (input field). The message is displayed as a user bubble, then processed by renderer_chat.js, which calls the API manager in api.js to get a response. The bot’s response is then appended to the chat container.
+1. **Clone** the repository:
+   ```bash
+   git clone https://github.com/LoofaCow/ACO.git
+   ```
 
+2. **Install** dependencies:
+   ```bash
+   cd aco
+   npm install
+   ```
 
-API Connection Management:
- Users can add multiple API connections and select one as the default. The selected connection is saved via apiStorage.js and used by the API manager to send requests. The settings UI in settings_api.js facilitates these operations.
+3. **Run** the application:
+   ```bash
+   npm start
+   ```
 
+4. (Optional) **Build** the application for distribution:
+   ```bash
+   npm run build
+   ```
 
-Logging & Debugging:
- All logs are captured both in the console and a dedicated log UI component. A pop-out window for logs (managed in main.js and settings_logging.js) can be toggled for better debugging visibility.
+---
 
+## Project Structure
 
-Customization & Formatting:
- Users can adjust the “voice” of the conversation by editing the system prompt and context template in the formatting tab. These settings are stored in localStorage and then used to build the full prompt for each API call.
+```plaintext
+ACO/
+├── src/
+│   ├── data/
+│   │   ├── api/          # Local JSON files for API connections
+│   │   └── default.json  # Default connection info
+│   ├── modules/
+│   │   ├── api.js        # Manages OpenAI API calls
+│   │   ├── apiStorage.js # Handles saving/loading API connections
+│   ├── renderer/
+│   │   ├── assets/
+│   │   │   └── ACO-removebg-preview.png # ACO logo
+│   │   ├── index.html    # Main UI
+│   │   ├── logging.html  # Logging popout (under development)
+│   │   ├── preload.js    # Preload script exposing secure APIs
+│   │   ├── renderer.js   # Renderer entry point
+│   │   ├── renderer_core.js
+│   │   ├── renderer_chat.js
+│   │   ├── renderer_settings.js
+│   │   ├── settings_api.js
+│   │   ├── settings_logging.js
+│   │   ├── settings_formatting.js
+│   │   ├── settings_advanced.js
+│   │   ├── styles.css
+│   │   ├── styles_base.css
+│   │   ├── styles_layout.css
+│   │   └── styles_components.css
+├── main.js              # Electron main process
+├── package.json
+└── README.md
+```
+
+---
+
+## Usage
+
+1. **Chat Interaction**  
+   - Type your message in the input field; it appears as a user bubble on the right.  
+   - The system or “AI” replies, appearing as a bot bubble on the left.
+
+2. **Settings Panel**  
+   - Click the gear icon to access settings for API connections, logging, advanced parameters, etc.
+
+3. **API Connections**  
+   - Save multiple OpenAI endpoints and choose a default connection/model.
+
+4. **Logging & Debugging**  
+   - View logs in real time within the app.  
+   - (Planned) Pop out logging into a separate window.
+
+5. **Advanced Parameters**  
+   - Adjust system prompts, context templates, or advanced parameters (temperature, max tokens, etc.) to fine-tune AI behavior.
+
+---
+
+## Contributing
+1. Fork the repository  
+2. Create a feature branch  
+3. Commit your changes  
+4. Push to your fork and submit a pull request  
+
+We welcome bug reports, feature requests, and general feedback.
+
+---
+
+## License
+This project is licensed under the [MIT License](LICENSE). Feel free to use and modify ACO as you wish, but please provide attribution back to this repository.
+
+---
+
+<p align="center">
+  <strong>Happy chatting with your Artificial Companion!</strong>
+</p>
