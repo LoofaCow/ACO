@@ -1,4 +1,4 @@
-// renderer_core.js – Core initialization, event listeners, logger, and window controls
+// renderer_core.js – Core initialization, event listeners, etc.
 const ApiStorage = require('../modules/apiStorage');
 const ApiManager = require('../modules/api');
 const rendererChat = require('./renderer_chat');
@@ -6,8 +6,7 @@ const rendererSettings = require('./renderer_settings');
 
 const RendererCore = {
   state: {
-    activeRightDrawer: null,
-    currentSettingsTab: 'api'
+    activeRightDrawer: null // we'll now use separate IDs
   },
   initialize() {
     this.registerEventListeners();
@@ -18,16 +17,19 @@ const RendererCore = {
   registerEventListeners() {
     const hamburger = document.getElementById('hamburger');
     const settingsIcon = document.getElementById('icon-settings');
-    const personasIcon = document.getElementById('icon-personas');
-    const charactersIcon = document.getElementById('icon-characters');
+    const personaButton = document.getElementById('icon-personas'); // for persona manager
+    const characterButton = document.getElementById('icon-characters'); // for character manager
     const closeBtn = document.getElementById('settings-close-btn');
     const sendBtn = document.getElementById('send-button');
     const messageInput = document.getElementById('message-input');
 
     hamburger?.addEventListener('click', () => this.toggleDrawer('left'));
     settingsIcon?.addEventListener('click', () => this.toggleSettingsPanel());
-    personasIcon?.addEventListener('click', () => this.toggleRightDrawer('characters'));
-    charactersIcon?.addEventListener('click', () => this.toggleRightDrawer('personas'));
+    
+    // Toggle persona drawer on clicking persona button
+    personaButton?.addEventListener('click', () => this.togglePersonaDrawer());
+    // Toggle character drawer on clicking character button
+    characterButton?.addEventListener('click', () => this.toggleCharacterDrawer());
 
     closeBtn?.addEventListener('click', () => {
       document.getElementById('settings-panel').classList.remove('active');
@@ -98,15 +100,26 @@ const RendererCore = {
       document.getElementById('drawer').classList.toggle('open');
     }
   },
-  toggleRightDrawer(contentType) {
-    const rightDrawer = document.getElementById('right-drawer');
-    if (this.state.activeRightDrawer === contentType) {
-      rightDrawer.classList.remove('open');
-      this.state.activeRightDrawer = null;
+  toggleCharacterDrawer() {
+    const charDrawer = document.getElementById('right-drawer');
+    if (charDrawer.classList.contains('open')) {
+      charDrawer.classList.remove('open');
     } else {
-      rightDrawer.classList.add('open');
-      this.state.activeRightDrawer = contentType;
-      // Load additional content if needed
+      charDrawer.classList.add('open');
+      // Ensure the persona drawer is closed
+      const personaDrawer = document.getElementById('persona-drawer');
+      if (personaDrawer) personaDrawer.classList.remove('open');
+    }
+  },
+  togglePersonaDrawer() {
+    const personaDrawer = document.getElementById('persona-drawer');
+    if (personaDrawer.classList.contains('open')) {
+      personaDrawer.classList.remove('open');
+    } else {
+      personaDrawer.classList.add('open');
+      // Ensure the character drawer is closed
+      const charDrawer = document.getElementById('right-drawer');
+      if (charDrawer) charDrawer.classList.remove('open');
     }
   },
   async toggleSettingsPanel() {

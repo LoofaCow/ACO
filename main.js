@@ -67,7 +67,7 @@ app.on('web-contents-created', (event, contents) => {
 });
 
 // Logging popout toggle handler
-ipcMain.handle('toggle-logging-popout', () => {
+ipcMain.handle('toggle-logging-popout', async () => {
   console.log("toggle-logging-popout invoked");
   if (loggingWindow) {
     loggingWindow.close();
@@ -84,11 +84,18 @@ ipcMain.handle('toggle-logging-popout', () => {
         contextIsolation: false
       }
     });
-    loggingWindow.loadFile(path.join(__dirname, 'src/renderer/logging_popout.html'));
-    loggingWindow.once('ready-to-show', () => {
-      loggingWindow.show();
-      loggingWindow.focus();
-    });
+    // Construct the file path to logging_popout.html
+    const filePath = path.join(__dirname, 'src/renderer/logging_popout.html');
+    console.log("Attempting to load logging popout file:", filePath);
+    try {
+      await loggingWindow.loadFile(filePath);
+      loggingWindow.once('ready-to-show', () => {
+        loggingWindow.show();
+        loggingWindow.focus();
+      });
+    } catch (error) {
+      console.error("Error loading logging popout file:", error);
+    }
     loggingWindow.on('closed', () => {
       loggingWindow = null;
     });

@@ -17,27 +17,50 @@
     </ul>
   </div>
 
-  <!-- Right Drawer -->
-  <div class="right-drawer" id="right-drawer">
-    <h2 id="right-drawer-title">Management</h2>
-    <div id="right-drawer-content">
-      <div class="character-bar">
-        <button class="char-btn" id="default-create-char-btn" title="Create Character">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
-            <path d="M12 5v14m-7-7h14" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <button class="char-btn" id="default-import-char-btn" title="Import Character">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
-            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM13 9V3.5L18.5 9H13z"/>
-          </svg>
-        </button>
-      </div>
-      <div class="character-list">
-        <p>No character selected.</p>
-      </div>
+  <!-- Right Drawer (Character Manager) -->
+<div class="right-drawer" id="right-drawer">
+  <h2 id="right-drawer-title">Character Manager</h2>
+  <div id="right-drawer-content">
+    <div class="character-bar">
+      <button class="char-btn" id="default-create-char-btn" title="Create Character">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+          <path d="M12 5v14m-7-7h14"/>
+        </svg>
+      </button>
+      <button class="char-btn" id="default-import-char-btn" title="Import Character">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+          <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM13 9V3.5L18.5 9H13z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="character-list">
+      <p>No character selected.</p>
     </div>
   </div>
+</div>
+
+<!-- Persona Drawer -->
+<div class="right-drawer" id="persona-drawer">
+  <h2 id="persona-drawer-title">Persona Manager</h2>
+  <div id="persona-drawer-content">
+    <div class="persona-bar">
+      <button class="persona-btn" id="default-create-persona-btn" title="Create Persona">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+          <!-- Reuse a similar icon as for characters, or choose another -->
+          <path d="M12 5v14m-7-7h14"/>
+        </svg>
+      </button>
+      <button class="persona-btn" id="default-import-persona-btn" title="Import Persona">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
+          <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM13 9V3.5L18.5 9H13z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="persona-list">
+      <p>No persona selected.</p>
+    </div>
+  </div>
+</div>
 
   <!-- Header -->
   <div class="header">
@@ -53,12 +76,12 @@
           <path d="M19.14,12.94c0-.32,0-.64,0-.96l2.03-1.58a0.49,0.49,0,0,0,.12-0.65l-1.92-3.32a0.5,0.5,0,0,0-.61-0.22l-2.39,0.96a7.38,7.38,0,0,0-1.66-0.96L14.5,2.11a0.5,0.5,0,0,0-.5-0.11H10a0.5,0.5,0,0,0-.5.11L9.13,5.19a7.38,7.38,0,0,0-1.66,0.96L5.08,5.19a0.5,0.5,0,0,0-.61,0.22L2.55,8.73a0.5,0.5,0,0,0,.12,0.65l2.03,1.58c0,.32,0,.64,0,.96s0,.64,0,.96L2.67,14.73a0.5,0.5,0,0,0-.12,0.65l1.92,3.32a0.5,0.5,0,0,0,.61,0.22l2.39-0.96a7.38,7.38,0,0,0,1.66,0.96L9.5,21.89a0.5,0.5,0,0,0,.5,0.11h4a0.5,0.5,0,0,0,.5-0.11l0.87-3.08a7.38,7.38,0,0,0,1.66-0.96l2.39,0.96a0.5,0.5,0,0,0,.61-0.22l1.92-3.32a0.5,0.5,0,0,0-.12-0.65ZM12,15.5A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/>
         </svg>
       </button>
-      <button class="icon-btn" id="icon-personas" title="Characters">
+      <button class="icon-btn" id="icon-personas" title="Persona">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
           <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.33 0-10 1.668-10 5v3h20v-3c0-3.332-6.67-5-10-5z"/>
         </svg>
       </button>
-      <button class="icon-btn" id="icon-characters" title="Personas">
+      <button class="icon-btn" id="icon-characters" title="Character">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="#e0e0e0">
           <path d="M12 2C7.589 2 4 4.686 4 8.5c0 3.105 2.175 5.709 5.252 6.664L9 18h6l-.252-2.836C17.825 14.209 20 11.605 20 8.5 20 4.686 16.411 2 12 2zm0 2c3.244 0 6 1.602 6 3.5S15.244 11 12 11 6 9.398 6 7.5 8.756 4 12 4z"/>
         </svg>

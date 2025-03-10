@@ -1,7 +1,7 @@
-// renderer_settings.js – Aggregates settings modules
 const settingsAPI = require('./settings_api');
 const settingsLogging = require('./settings_logging');
 const settingsFormatting = require('./settings_formatting');
+const settingsAdvanced = require('./settings_advanced');
 
 module.exports = {
   loadApiSettings: settingsAPI.loadApiSettings.bind(settingsAPI),
@@ -11,14 +11,7 @@ module.exports = {
   allModels: settingsAPI.allModels,
   loadLoggingTab: settingsLogging.loadLoggingTab.bind(settingsLogging),
   loadFormattingTab: settingsFormatting.loadFormattingTab.bind(settingsFormatting),
-  loadAdvancedTab: () => {
-    document.getElementById("settings-content").innerHTML = `
-      <div class="advanced-tab">
-        <h2>Advanced Parameters</h2>
-        <p>Coming Soon...</p>
-      </div>
-    `;
-  },
+  loadAdvancedTab: settingsAdvanced.loadAdvancedTab,  // Use the advanced parameters module
   loadExtensionsTab: () => {
     document.getElementById("settings-content").innerHTML = `
       <div class="extensions-tab">

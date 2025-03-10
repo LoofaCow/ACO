@@ -328,3 +328,32 @@ textarea::-webkit-scrollbar-thumb {
     border-radius: 8px;
     border: 2px solid #222;
 }
+/* Bubble input fields for advanced settings */
+.bubble-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ff6f61;
+    border-radius: 20px;
+    background: #222;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: border 0.3s ease;
+  }
+  .bubble-input:focus {
+    outline: none;
+    border-color: #ff8577;
+  }
+  
+  /* Bubble button styling */
+  .bubble-btn {
+    border-radius: 20px;
+    background: #ff6f61;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .bubble-btn:hover {
+    background: #ff8577;
+  }
