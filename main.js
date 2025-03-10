@@ -77,24 +77,21 @@ ipcMain.handle('toggle-logging-popout', () => {
     loggingWindow = new BrowserWindow({
       width: 600,
       height: 400,
-      title: "Logging",  // Updated title
+      title: "Logging Popout",
       webPreferences: {
         preload: path.join(__dirname, 'src/preload.js'),
         nodeIntegration: true,
         contextIsolation: false
       }
     });
-    loggingWindow.loadFile(path.join(__dirname, 'src/renderer/logging.html'));
+    loggingWindow.loadFile(path.join(__dirname, 'src/renderer/logging_popout.html'));
+    loggingWindow.once('ready-to-show', () => {
+      loggingWindow.show();
+      loggingWindow.focus();
+    });
     loggingWindow.on('closed', () => {
       loggingWindow = null;
     });
     return true;
-  }
-});
-
-// Forward new-log messages from main window to logging window
-ipcMain.on('new-log', (event, message) => {
-  if (loggingWindow) {
-    loggingWindow.webContents.send('new-log', message);
   }
 });
