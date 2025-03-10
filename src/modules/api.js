@@ -1,15 +1,6 @@
 const OpenAI = require('openai');
 const ApiStorage = require('./apiStorage');
 
-const DEFAULT_CONTEXT_TEMPLATE_PRESET = `{{#if system}}{{system}}
-{{/if}}{{#if wiBefore}}{{wiBefore}}
-{{/if}}{{#if description}}{{description}}
-{{/if}}{{#if personality}}{{personality}}
-{{/if}}{{#if scenario}}{{scenario}}
-{{/if}}{{#if wiAfter}}{{wiAfter}}
-{{/if}}{{#if persona}}{{persona}}
-{{/if}}`;
-
 const DEFAULT_SYSTEM_PROMPT_PRESET = `A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.`;
 
 class ApiManager {
@@ -26,7 +17,6 @@ class ApiManager {
       if (!connection?.url || !connection?.apiKey) {
         throw new Error('Invalid connection parameters');
       }
-      // Allow usage in a browser-like environment
       this.openai = new OpenAI({
         baseURL: connection.url,
         apiKey: connection.apiKey,
@@ -67,24 +57,20 @@ class ApiManager {
   async sendMessage(message, modelId) {
     if (!this.openai) throw new Error('API connection not initialized');
     try {
-      // Retrieve formatting settings from localStorage or use defaults
-      const contextTemplate = localStorage.getItem('contextTemplate') || DEFAULT_CONTEXT_TEMPLATE_PRESET;
+      // Retrieve the system prompt from localStorage (or fallback to default)
       const systemPrompt = localStorage.getItem('systemPrompt') || DEFAULT_SYSTEM_PROMPT_PRESET;
       
-      // Replace the system placeholder with the system prompt
-      let processedContextTemplate = contextTemplate.replace('{{system}}', systemPrompt);
-      // Remove any leftover handlebars placeholders (lines containing unresolved {{...}})
-      processedContextTemplate = processedContextTemplate.split('\n')
-          .map(line => line.trim())
-          .filter(line => !(/{{.*}}/.test(line)))
-          .join('\n');
-      
-      // Retrieve the last 3 messages from the chat container as conversation history
+      // Retrieve conversation history (last 3 messages) from the chat container.
+      // Remove the last message if it already matches the current user message (to avoid duplication).
       let conversationHistory = "";
       const chatContainer = document.getElementById('chat-container');
       if (chatContainer) {
-        const messages = chatContainer.getElementsByClassName('message-bubble');
-        const lastMessages = Array.from(messages).slice(-3);
+        let messages = Array.from(chatContainer.getElementsByClassName('message-bubble'));
+        if (messages.length > 0 && messages[messages.length - 1].classList.contains('user') &&
+            messages[messages.length - 1].textContent.trim() === message.trim()) {
+          messages.pop();
+        }
+        const lastMessages = messages.slice(-3);
         lastMessages.forEach(msg => {
           if (msg.classList.contains('user')) {
             conversationHistory += "User: " + msg.textContent + "\n";
@@ -94,10 +80,12 @@ class ApiManager {
         });
       }
       
-      // Build the full prompt: processed context template, conversation history, new message, and the assistant indicator
-      const fullPrompt = processedContextTemplate + "\n" + conversationHistory + "User: " + message + "\nAssistant:";
+      // Build the full prompt:
+      // 1. Start with the system prompt.
+      // 2. Append the conversation history.
+      // 3. Append the new user message followed by the "Assistant:" marker.
+      const fullPrompt = systemPrompt + "\n" + conversationHistory + "User: " + message + "\nAssistant:";
       
-      // Log the prompt with clear demarcation for easier reading in the logs
       console.log("===== PROMPT SENT =====\n" + fullPrompt + "\n===== END OF PROMPT =====");
       
       const response = await fetch(`${this.openai.baseURL}/completions`, {
@@ -133,7 +121,7 @@ class ApiManager {
       const connections = await ApiStorage.getConnections();
       const connection = connections.find(c => c.name === defaultConnection);
       if (connection) {
-        connection.defaultModel = defaultModel; // attach default model to connection
+        connection.defaultModel = defaultModel;
         const updateSuccess = await this.updateConnection(connection);
         if (updateSuccess) {
           console.log(`API connection updated to: ${connection.name}${defaultModel ? " with model: " + defaultModel : ""}`);
