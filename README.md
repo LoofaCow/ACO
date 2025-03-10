@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="ACO-removebg-preview.png" alt="ACO Logo" width="200" />
+  <img src="ACO.png" alt="ACO Logo" width="200" />
 </p>
 
 <h1 align="center">ACO - Artificial Companion Olive</h1>
