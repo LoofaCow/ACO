@@ -88,6 +88,13 @@ class ApiManager {
       
       console.log("===== PROMPT SENT =====\n" + fullPrompt + "\n===== END OF PROMPT =====");
       
+      // Retrieve advanced parameters from localStorage
+      const maxTokens = parseInt(localStorage.getItem('maxTokens')) || 150;
+      const temperature = parseFloat(localStorage.getItem('temperature')) || 0.7;
+      const topP = parseFloat(localStorage.getItem('topP')) || 1.0;
+      const frequencyPenalty = parseFloat(localStorage.getItem('frequencyPenalty')) || 0.0;
+      const presencePenalty = parseFloat(localStorage.getItem('presencePenalty')) || 0.0;
+      
       const response = await fetch(`${this.openai.baseURL}/completions`, {
         method: 'POST',
         headers: {
@@ -97,8 +104,11 @@ class ApiManager {
         body: JSON.stringify({
           model: modelId,
           prompt: fullPrompt,
-          max_tokens: 150,
-          temperature: 0.7
+          max_tokens: maxTokens,
+          temperature: temperature,
+          top_p: topP,
+          frequency_penalty: frequencyPenalty,
+          presence_penalty: presencePenalty
         })
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -113,7 +123,7 @@ class ApiManager {
       console.error('Error sending message:', error.message);
       return "Failed to get response";
     }
-  }
+  }  
 
   async setDefaultConnection() {
     try {
