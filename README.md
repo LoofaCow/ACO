@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src/renderer/assets/ACO.png" alt="ACO Logo" width="200" />
+  <img src="src/assets/ACO.png" alt="ACO Logo" width="200" />
 </p>
 
-<h1 align="center">ACO - Artificial Companion Olive</h1>
+# ACO – Artificial Companion Olive
 
 <p align="center">
   <a href="https://electronjs.org/">
@@ -11,138 +11,170 @@
   <a href="https://openai.com/">
     <img src="https://img.shields.io/badge/OpenAI-API-blue.svg?logo=openai&logoColor=white" alt="OpenAI API" />
   </a>
-  <img src="https://img.shields.io/badge/Platform-Windows%20|%20Mac%20|%20Linux-informational.svg?logo=github" alt="Platform" />
-  <img src="https://img.shields.io/github/license/your-username/aco" alt="License" />
+  <a href="https://github.com/yourusername/ACO-Artificial-Companion-Olive">
+    <img src="https://img.shields.io/badge/Platform-Windows%20|%20Mac%20|%20Linux-informational.svg?logo=github" alt="Platform" />
+  </a>
+  <img src="https://img.shields.io/github/license/yourusername/ACO-Artificial-Companion-Olive" alt="License" />
 </p>
 
 <p align="center">
-  <i>An Electron-based desktop chat application designed as an “Artificial Companion,” integrating a chat interface with an OpenAI backend, plus flexible settings and logging.</i>
+  <i>An intelligent, customizable AI companion that combines interactive chat, smart device control, and deep personalization in one elegant desktop application.</i>
 </p>
 
 ---
 
 ## Table of Contents
-1. [Features](#features)
-2. [Screenshots](#screenshots)
-3. [Getting Started](#getting-started)
-4. [Project Structure](#project-structure)
-5. [Usage](#usage)
-6. [Contributing](#contributing)
-7. [License](#license)
+
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Development Roadmap](#development-roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+## Overview
+
+ACO – Artificial Companion Olive is a modular Electron-based desktop application designed to serve as your AI-powered companion. With Olive, you can engage in natural, context-aware conversations, manage connected devices, and fine-tune your experience through an advanced settings panel—all wrapped up in a sleek, coral-accented interface.
+
+This project is still under active development, with many features and enhancements planned. Our goal is to create a truly customizable companion that adapts to your needs and evolves over time.
 
 ---
 
 ## Features
-- **Modular Design** – Clear separation between the main process, renderer process, and supporting modules.
-- **API Connections** – Easily configure multiple OpenAI endpoints and switch between them.
-- **Customizable Prompts** – Adjust system prompts, context templates, advanced parameters (like max tokens, temperature, etc.).
-- **Integrated Logging** – View logs in-app or (planned) pop out into a separate window for debugging.
-- **Coral-Themed UI** – A stylish, cohesive design featuring bubble-style buttons and drawers.
+
+- **Modular Dashboard:**  
+  A dynamic tile-based interface where each module (chat, device control, automations, alerts, current state) is self-contained and extensible.
+  
+- **Interactive AI Chat:**  
+  Engage in intelligent conversation with Olive using OpenAI’s API. Enjoy advanced features like dynamic conversation history, personalized system prompts, and adjustable parameters.
+  
+- **Smart Device Management:**  
+  Control and monitor your connected devices through an intuitive interface featuring category filters, real-time status, and interactive configuration views.
+  
+- **Advanced Customization:**  
+  Access a detailed settings panel that lets you configure API connections, adjust advanced formatting parameters, and personalize Olive’s personality and behavior.
+  
+- **Coral-Themed Aesthetic:**  
+  A modern, cohesive design that blends a coral accent with a dark, stylish UI for an engaging user experience.
 
 ---
 
-## Screenshots
-*(Coming soon! Feel free to insert your own screenshots or GIFs here.)*
+## Architecture
+
+ACO is built with a robust, modular architecture that separates concerns across different layers:
+
+- **Main Process:**  
+  Handles the Electron lifecycle, window management, and inter-process communication.
+  
+- **Renderer Process:**  
+  Manages the UI and user interactions, with each dashboard tile implemented as an independent module.
+  
+- **API Integration:**  
+  Provides seamless integration with OpenAI’s API. API connections are stored as local JSON files, allowing dynamic selection and model fetching.
+  
+- **Customization Modules:**  
+  Dedicated settings for API connections, advanced parameters, and personalization options enable deep user control over Olive’s behavior.
 
 ---
 
-## Getting Started
+## Installation
 
-1. **Clone** the repository:
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v14 or later)
+- [npm](https://www.npmjs.com/)
+
+### Steps
+
+1. **Clone the repository:**
+
    ```bash
-   git clone https://github.com/LoofaCow/ACO.git
+   git clone https://github.com/yourusername/ACO-Artificial-Companion-Olive.git
+   cd ACO-Artificial-Companion-Olive
    ```
 
-2. **Install** dependencies:
+2. **Install dependencies:**
+
    ```bash
-   cd aco
    npm install
    ```
 
-3. **Run** the application:
+3. **Start the application:**
+
    ```bash
    npm start
    ```
 
 4. (Optional) **Build** the application for distribution:
+
    ```bash
    npm run build
    ```
 
 ---
 
-## Project Structure
+## Usage
 
-```plaintext
-ACO/
-├── src/
-│   ├── data/
-│   │   ├── api/          # Local JSON files for API connections
-│   │   └── default.json  # Default connection info
-│   ├── modules/
-│   │   ├── api.js        # Manages OpenAI API calls
-│   │   ├── apiStorage.js # Handles saving/loading API connections
-│   ├── renderer/
-│   │   ├── assets/
-│   │   │   └── ACO-removebg-preview.png # ACO logo
-│   │   ├── index.html    # Main UI
-│   │   ├── logging.html  # Logging popout (under development)
-│   │   ├── preload.js    # Preload script exposing secure APIs
-│   │   ├── renderer.js   # Renderer entry point
-│   │   ├── renderer_core.js
-│   │   ├── renderer_chat.js
-│   │   ├── renderer_settings.js
-│   │   ├── settings_api.js
-│   │   ├── settings_logging.js
-│   │   ├── settings_formatting.js
-│   │   ├── settings_advanced.js
-│   │   ├── styles.css
-│   │   ├── styles_base.css
-│   │   ├── styles_layout.css
-│   │   └── styles_components.css
-├── main.js              # Electron main process
-├── package.json
-└── README.md
-```
+- **Dashboard:**  
+  Launch Olive to view the modular dashboard. Each tile provides a preview of its module (chat, devices, etc.) and opens a detailed view when clicked.
+
+- **Chat Module:**  
+  Interact with Olive via natural language. Customize API settings and personalize the conversation flow through an integrated, tabbed settings panel.
+
+- **Device Control:**  
+  Filter and manage your smart devices effortlessly. Use the sidebar to select categories and access detailed configuration views.
+
+- **Settings Panel:**  
+  Modify API connections, advanced parameters, and even Olive’s system prompt to tailor the experience to your liking.
 
 ---
 
-## Usage
+## Development Roadmap
 
-1. **Chat Interaction**  
-   - Type your message in the input field; it appears as a user bubble on the right.  
-   - The system or “AI” replies, appearing as a bot bubble on the left.
+- **Phase 1:**  
+  Complete the core dashboard and modular tile system.
 
-2. **Settings Panel**  
-   - Click the gear icon to access settings for API connections, logging, advanced parameters, etc.
+- **Phase 2:**  
+  Integrate a fully-featured chat module with dynamic API switching and deep personalization options.
 
-3. **API Connections**  
-   - Save multiple OpenAI endpoints and choose a default connection/model.
+- **Phase 3:**  
+  Expand device management, add robust automation features, and refine the user interface.
 
-4. **Logging & Debugging**  
-   - View logs in real time within the app.  
-   - (Planned) Pop out logging into a separate window.
-
-5. **Advanced Parameters**  
-   - Adjust system prompts, context templates, or advanced parameters (temperature, max tokens, etc.) to fine-tune AI behavior.
+- **Future Enhancements:**  
+  Multi-user support, advanced logging and debugging tools, third-party integrations, and more personalization options.
 
 ---
 
 ## Contributing
-1. Fork the repository  
-2. Create a feature branch  
-3. Commit your changes  
-4. Push to your fork and submit a pull request  
 
-We welcome bug reports, feature requests, and general feedback.
+Contributions are warmly welcome! If you’d like to help improve ACO:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Commit your changes with clear, descriptive messages.
+4. Push to your fork and open a pull request.
+
+For major changes, please open an issue first to discuss your ideas.
 
 ---
 
 ## License
-This project is licensed under the [MIT License](LICENSE). Feel free to use and modify ACO as you wish, but please provide attribution back to this repository.
+
+ACO – Artificial Companion Olive is licensed under the [MIT License](LICENSE). Please refer to the LICENSE file for details.
 
 ---
 
-<p align="center">
-  <strong>Happy chatting with your Artificial Companion!</strong>
-</p>
+## Contact
+
+For questions, suggestions, or collaboration, please open an issue on GitHub or email me at [your.email@example.com](mailto:your.email@example.com).
+
+---
+
+*Crafted with passion and coral vibes by the ACO Team.*
+
+---
