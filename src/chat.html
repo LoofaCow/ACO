@@ -185,6 +185,8 @@
   <!-- Load our chat module -->
   <script type="module">
     import { chatModule } from './modules/chatModule.js';
+    const apiStorage = window.require('./modules/apiStorage.js');
+    const ApiManager = window.require('./modules/api.js');
     
     // Toggle API Settings Panel on cog click
     const connectionCog = document.getElementById('connection-cog');
@@ -231,44 +233,134 @@
       activeTab.classList.add('active');
     }
     
-    // Function to load API Connections content
-    function loadApiConnections() {
-      settingsContent.innerHTML = `
-        <div class="modern-form">
-          <h2>API Connections</h2>
-          <div class="form-group">
-            <input type="text" id="api-name" placeholder="Connection Name">
-          </div>
-          <div class="form-group">
-            <input type="url" id="api-url" placeholder="API Endpoint">
-          </div>
-          <div class="form-group">
-            <input type="password" id="api-key" placeholder="API Key">
-          </div>
-          <button id="api-save-btn" class="primary-btn">Save Connection</button>
-          <hr>
-          <div class="form-group">
-            <select id="default-connection">
-              <option value="">No saved connections</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <input type="text" id="model-search" placeholder="Search models...">
-          </div>
-          <div class="form-group">
-            <select id="default-model"><option value="">Select a model</option></select>
-          </div>
-          <button id="api-connect-btn" class="primary-btn">Connect</button>
-        </div>
-      `;
-      // Attach events for API settings (simulate with alerts for now)
-      document.getElementById('api-save-btn').addEventListener('click', () => {
-        alert('Save connection functionality to be implemented.');
-      });
-      document.getElementById('api-connect-btn').addEventListener('click', () => {
-        alert('API connect functionality to be implemented.');
-      });
+        function loadApiConnections() {
+  settingsContent.innerHTML = `
+    <div class="modern-form">
+      <h2>API Connections</h2>
+      <div class="form-group">
+        <input type="text" id="api-name" placeholder="Connection Name">
+      </div>
+      <div class="form-group">
+        <input type="url" id="api-url" placeholder="API Endpoint">
+      </div>
+      <div class="form-group">
+        <input type="password" id="api-key" placeholder="API Key">
+      </div>
+      <button id="api-save-btn" class="primary-btn">Save Connection</button>
+      <hr>
+      <div class="form-group">
+        <label for="default-connection">Select Connection:</label>
+        <select id="default-connection">
+          <option value="">No saved connections</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="model-search">Search models:</label>
+        <input type="text" id="model-search" placeholder="Search models...">
+      </div>
+      <div class="form-group">
+        <label for="default-model">Select Model:</label>
+        <select id="default-model"><option value="">Select a model</option></select>
+      </div>
+      <button id="api-connect-btn" class="primary-btn">Connect</button>
+    </div>
+  `;
+
+  // Attach event for saving connection
+  const saveBtn = document.getElementById('api-save-btn');
+  saveBtn.addEventListener('click', async () => {
+    const name = document.getElementById('api-name').value.trim();
+    const url = document.getElementById('api-url').value.trim();
+    const apiKey = document.getElementById('api-key').value.trim();
+    if (!name || !url || !apiKey) {
+      alert("Please fill in all connection fields.");
+      return;
     }
+    console.log("Saving connection:", name, url, apiKey);
+    try {
+      // Save connection details to a JSON file (e.g., Featherless.json)
+      await apiStorage.saveConnection(name, url, apiKey);
+      alert("Connection saved successfully!");
+      loadSavedConnections(); // Refresh the connections dropdown
+    } catch (error) {
+      console.error("Error saving connection:", error);
+      alert("Error saving connection: " + error.message);
+    }
+  });
+
+  // Attach event for connecting
+  const connectBtn = document.getElementById('api-connect-btn');
+  connectBtn.addEventListener('click', async () => {
+    const defaultConnectionSelect = document.getElementById('default-connection');
+    const selectedConnectionName = defaultConnectionSelect.value;
+    if (!selectedConnectionName) {
+      alert("Please select a connection.");
+      return;
+    }
+    // Get all saved connections and find the selected one
+    const connections = await apiStorage.getConnections();
+    const connection = connections.find(c => c.name === selectedConnectionName);
+    if (!connection) {
+      alert("Selected connection not found.");
+      return;
+    }
+    console.log("Selected connection:", connection);
+    // Save connection details to localStorage for chatModule usage
+    localStorage.setItem('apiURL', connection.url);
+    localStorage.setItem('apiKey', connection.apiKey);
+    // Update connection using your API module
+    const updateSuccess = await ApiManager.updateConnection(connection);
+    if (updateSuccess) {
+      alert("API connection updated successfully. Fetching models...");
+      try {
+        const models = await ApiManager.getModels();
+        populateModelDropdown(models);
+      } catch (err) {
+        console.error("Error fetching models:", err);
+        alert("Error fetching models: " + err.message);
+      }
+    } else {
+      alert("Failed to update API connection.");
+    }
+  });
+
+  // Function to load saved connections into the dropdown
+  async function loadSavedConnections() {
+    const defaultConnectionSelect = document.getElementById('default-connection');
+    try {
+      const connections = await apiStorage.getConnections();
+      if (connections.length > 0) {
+        defaultConnectionSelect.innerHTML = connections.map(conn => `<option value="${conn.name}">${conn.name}</option>`).join("");
+      } else {
+        defaultConnectionSelect.innerHTML = `<option value="">No saved connections</option>`;
+      }
+    } catch (err) {
+      console.error("Error loading connections:", err);
+      defaultConnectionSelect.innerHTML = `<option value="">Error loading connections</option>`;
+    }
+  }
+
+  // Initially load saved connections
+  loadSavedConnections();
+
+  // Attach event for model selection change to save the selected model
+  const defaultModelSelect = document.getElementById('default-model');
+  defaultModelSelect.addEventListener('change', () => {
+    const selectedModel = defaultModelSelect.value;
+    localStorage.setItem('defaultModel', selectedModel);
+    console.log("Selected model:", selectedModel);
+  });
+
+  // Helper function to populate the models dropdown
+  function populateModelDropdown(models) {
+    const defaultModelSelect = document.getElementById('default-model');
+    if (models.length > 0) {
+      defaultModelSelect.innerHTML = models.map(model => `<option value="${model.id}">${model.name || model.id}</option>`).join("");
+    } else {
+      defaultModelSelect.innerHTML = `<option value="">No models available</option>`;
+    }
+  }
+}
     
     // Function to load Advanced Formatting content
     function loadAdvancedFormatting() {
