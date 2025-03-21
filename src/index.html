@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ACO Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="dashboard">
+    <!-- Settings Cog in top-right corner -->
+    <div id="header">
+      <button id="settingsButton">⚙</button>
+    </div>
+
+    <!-- Main Tiles Container -->
+    <div id="tilesContainer">
+      <!-- Top row -->
+      <div class="tile" id="devicesTile">Devices</div>
+      <div class="tile" id="chatTile">Chat</div>
+      <div class="tile" id="automationsTile">Automations</div>
+      <!-- Bottom row -->
+      <div class="tile" id="currentStateTile">Current State</div>
+      <div class="tile" id="olivesTile">Olives Animated Character</div>
+      <div class="tile" id="alertsTile">Alerts</div>
+    </div>
+  </div>
+
+  <script type="module" src="./index.js"></script>
+</body>
+</html>

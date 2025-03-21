@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Settings</title>
+  <style>
+    :root {
+      --accent-color: #ff7559;
+      --background-color: #1e1e1e;
+      --text-color: #fff;
+    }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      padding: 20px;
+    }
+    h1 {
+      color: var(--accent-color);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    select, input[type="checkbox"] {
+      margin-left: 10px;
+    }
+    .setting-group {
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: var(--accent-color);
+      border: none;
+      padding: 10px 15px;
+      color: var(--text-color);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Settings</h1>
+  <div class="setting-group">
+    <label>
+      Theme:
+      <select>
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+    </label>
+  </div>
+  <div class="setting-group">
+    <label>
+      Enable notifications:
+      <input type="checkbox" checked>
+    </label>
+  </div>
+  <div class="setting-group">
+    <label>
+      Auto-update:
+      <input type="checkbox">
+    </label>
+  </div>
+  <div class="setting-group">
+    <label>
+      Language:
+      <select>
+        <option value="en">English</option>
+        <option value="jp">Japanese</option>
+        <option value="fr">French</option>
+      </select>
+    </label>
+  </div>
+  <button onclick="window.close()">Save &amp; Close</button>
+</body>
+</html>

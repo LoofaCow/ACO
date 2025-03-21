@@ -1,0 +1,92 @@
+/* Define our accent color as a CSS variable */
+:root {
+  --accent-color: #F44336;
+}
+
+/* Global settings */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #1e1e1e;
+}
+
+/* Dashboard container */
+#dashboard {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  font-family: sans-serif;
+  background-color: #1e1e1e;
+  padding-top: 50px; /* Reserve space for the header */
+  box-sizing: border-box;
+}
+
+/* Header with settings cog in the top-left corner */
+#header {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  -webkit-app-region: drag;
+  background-color: #1e1e1e;
+}
+
+#settingsButton {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+  transition: color 0.2s ease;
+}
+
+/* Make the settings cog use the accent color on hover */
+#settingsButton:hover {
+  color: var(--accent-color);
+}
+
+/* Tiles container */
+#tilesContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 1rem;
+  padding: 1rem;
+  height: calc(100% - 50px);
+  box-sizing: border-box;
+}
+
+.tile {
+  background-color: #2c2c2c;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Title styling: at the top center */
+.tile-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Preview styling: centered content */
+.tile-preview {
+  font-size: 1rem;
+}
+
+/* Hover effect: enlarge tile and add coral accent glow */
+.tile:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px var(--accent-color);
+}

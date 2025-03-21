@@ -1,104 +1,75 @@
+// main.js
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
-process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'false';
-
-let mainWindow;
-let loggingWindow = null;
-
 function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1200,
+  const win = new BrowserWindow({
+    width: 1280,
     height: 800,
-    minWidth: 800,
-    minHeight: 600,
     frame: false,
     titleBarStyle: 'hidden',
     webPreferences: {
-      preload: path.join(__dirname, 'src/preload.js'),
       nodeIntegration: true,
       contextIsolation: false,
-      sandbox: false,
-      webSecurity: true,
-      allowRunningInsecureContent: false
     }
   });
+  win.loadFile(path.join(__dirname, 'src', 'index.html'));
+}
 
-  mainWindow.loadFile(path.join(__dirname, 'src/renderer/index.html'));
-
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
-    require('electron-reloader')(module);
-  }
-
-  ipcMain.handle('window-control', (_, action) => {
-    switch(action) {
-      case 'minimize': mainWindow.minimize(); break;
-      case 'maximize': 
-        mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
-        break;
-      case 'close': mainWindow.close(); break;
+// Function to create the settings window
+function createSettingsWindow() {
+  const settingsWin = new BrowserWindow({
+    width: 600,
+    height: 400,
+    title: 'Settings',
+    resizable: false,
+    modal: true,
+    parent: BrowserWindow.getFocusedWindow(),
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
     }
   });
+  settingsWin.loadFile(path.join(__dirname, 'src', 'settings.html'));
+}
 
-  ipcMain.handle('get-app-version', () => app.getVersion());
+// Function to create an enlarged tile window based on its name
+function createTileWindow(tileName) {
+  const tileWin = new BrowserWindow({
+    width: 800,
+    height: 600,
+    title: tileName.charAt(0).toUpperCase() + tileName.slice(1),
+    resizable: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    }
+  });
+  tileWin.loadFile(path.join(__dirname, 'src', `${tileName}.html`));
 }
 
 app.whenReady().then(() => {
   createWindow();
-  
+
+  // Listen for the settings window request
+  ipcMain.on('open-settings-window', () => {
+    createSettingsWindow();
+  });
+
+  // Listen for tile window requests; tileName can be "devices", "chat", etc.
+  ipcMain.on('open-tile-window', (event, tileName) => {
+    createTileWindow(tileName);
+  });
+
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
   });
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
-
-app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (event) => {
-    event.preventDefault();
-  });
-  
-  contents.setWindowOpenHandler(() => ({
-    action: 'deny'
-  }));
-});
-
-// Logging popout toggle handler
-ipcMain.handle('toggle-logging-popout', async () => {
-  console.log("toggle-logging-popout invoked");
-  if (loggingWindow) {
-    loggingWindow.close();
-    loggingWindow = null;
-    return false;
-  } else {
-    loggingWindow = new BrowserWindow({
-      width: 600,
-      height: 400,
-      title: "Logging Popout",
-      webPreferences: {
-        preload: path.join(__dirname, 'src/preload.js'),
-        nodeIntegration: true,
-        contextIsolation: false
-      }
-    });
-    // Construct the file path to logging_popout.html
-    const filePath = path.join(__dirname, 'src/renderer/logging_popout.html');
-    console.log("Attempting to load logging popout file:", filePath);
-    try {
-      await loggingWindow.loadFile(filePath);
-      loggingWindow.once('ready-to-show', () => {
-        loggingWindow.show();
-        loggingWindow.focus();
-      });
-    } catch (error) {
-      console.error("Error loading logging popout file:", error);
-    }
-    loggingWindow.on('closed', () => {
-      loggingWindow = null;
-    });
-    return true;
+  if (process.platform !== 'darwin') {
+    app.quit();
   }
 });
