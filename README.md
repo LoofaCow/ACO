@@ -1,7 +1,5 @@
 
 ---
-
-```markdown
 <p align="center">
   <img src="src/assets/ACO.png" alt="ACO Logo" width="200" />
 </p>
@@ -225,6 +223,5 @@ ACO – Artificial Companion Olive is licensed under the [MIT License](LICENSE).
 
 For questions, suggestions, or collaboration, open an issue on GitHub or drop me an email at [tj98129@gmail.com](mailto:your.email@example.com).
 But dont expect a quick response ive had this email since i was 12.
-```
 
 ---
