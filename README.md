@@ -221,7 +221,7 @@ ACO – Artificial Companion Olive is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-For questions, suggestions, or collaboration, open an issue on GitHub or drop me an email at [tj98129@gmail.com](mailto:your.email@example.com).
+For questions, suggestions, or collaboration, open an issue on GitHub or drop me an email at [tj98129@gmail.com](mailto:tj98129@gmail.com).
 But dont expect a quick response ive had this email since i was 12.
 
 ---
