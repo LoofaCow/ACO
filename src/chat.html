@@ -233,7 +233,7 @@
       activeTab.classList.add('active');
     }
     
-        function loadApiConnections() {
+    function loadApiConnections() {
   settingsContent.innerHTML = `
     <div class="modern-form">
       <h2>API Connections</h2>
@@ -276,9 +276,7 @@
       alert("Please fill in all connection fields.");
       return;
     }
-    console.log("Saving connection:", name, url, apiKey);
     try {
-      // Save connection details to a JSON file (e.g., Featherless.json)
       await apiStorage.saveConnection(name, url, apiKey);
       alert("Connection saved successfully!");
       loadSavedConnections(); // Refresh the connections dropdown
@@ -297,18 +295,18 @@
       alert("Please select a connection.");
       return;
     }
-    // Get all saved connections and find the selected one
     const connections = await apiStorage.getConnections();
     const connection = connections.find(c => c.name === selectedConnectionName);
     if (!connection) {
       alert("Selected connection not found.");
       return;
     }
-    console.log("Selected connection:", connection);
     // Save connection details to localStorage for chatModule usage
     localStorage.setItem('apiURL', connection.url);
     localStorage.setItem('apiKey', connection.apiKey);
-    // Update connection using your API module
+    // Persist the selected connection
+    localStorage.setItem('defaultConnection', selectedConnectionName);
+
     const updateSuccess = await ApiManager.updateConnection(connection);
     if (updateSuccess) {
       alert("API connection updated successfully. Fetching models...");
@@ -334,12 +332,17 @@
       } else {
         defaultConnectionSelect.innerHTML = `<option value="">No saved connections</option>`;
       }
+      // Set the default connection if it exists
+      const savedDefaultConnection = localStorage.getItem('defaultConnection');
+      if (savedDefaultConnection) {
+        defaultConnectionSelect.value = savedDefaultConnection;
+      }
     } catch (err) {
       console.error("Error loading connections:", err);
       defaultConnectionSelect.innerHTML = `<option value="">Error loading connections</option>`;
     }
   }
-
+  
   // Initially load saved connections
   loadSavedConnections();
 
@@ -358,6 +361,11 @@
       defaultModelSelect.innerHTML = models.map(model => `<option value="${model.id}">${model.name || model.id}</option>`).join("");
     } else {
       defaultModelSelect.innerHTML = `<option value="">No models available</option>`;
+    }
+    // Restore the default model selection if it exists
+    const savedDefaultModel = localStorage.getItem('defaultModel');
+    if (savedDefaultModel) {
+      defaultModelSelect.value = savedDefaultModel;
     }
   }
 }
