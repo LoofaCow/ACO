@@ -7,7 +7,7 @@
 # ACO – Artificial Companion Olive
 
 <p align="center">
-  <i>Your friendly digital sidekick, blending chat, device control, and personalization into one chill desktop app. Think of Olive as your ever-present pal, always ready to lend a hand (or a smart idea) whenever you need it.</i>
+  <i>Your friendly digital sidekick, blending chat, device control, and personalization into one desktop app. Think of Olive as your ever-present friend, always ready to lend a firm accountability comment (or a nice push) whenever you need it.</i>
 </p>
 
 ---
@@ -30,13 +30,13 @@
 
 ## Overview
 
-ACO – Artificial Companion Olive is a modular, Electron-based desktop application designed to be your AI-powered buddy. Whether it’s chatting with you, controlling your smart devices, or letting you tweak settings until it’s just right, Olive’s got you covered—all wrapped up in a sleek, coral-accented interface.
+ACO – Artificial Companion Olive is a modular, Electron-based desktop application designed to be an AI-powered companion. Whether it’s chatting with you, controlling your smart devices, or letting you tweak settings until it’s just right, Olive’s will be a central hub kinda like Alexa or Siri but run by an ai that gives you a Jarvis/Baymax feeling, and its all wrapped up in a coral-accented interface.
 
 ---
 
 ## What Is ACO?
 
-At its heart, ACO is meant to be that friendly companion on your desktop. Imagine a digital assistant that’s as approachable as your favorite chat app but powerful enough to control devices and learn your style along the way. Even if you’re not super tech-savvy, Olive is built to be simple to use—almost like talking to a friend who happens to know a lot about gadgets and smart living. It’s here to help, adapt, and even surprise you with features you didn’t know you needed.
+At its heart, ACO is meant to be a friendly companion in daily rountines or organization. Imagine a digital assistant like jarvis, powerful enough to control devices and learn your style along the way, and be all helpful like "Olive, am i on track with spending." "Olive:Nope you spend way to much on popcorn again but hey as long as your happy." the dynamic personality is what will be customizable and such like if you didnt want a snarky jarvis you could have a "Nicer" olive by making them more pragmatic but reserved or something whatever floats your boat, i like snarky olive. Also even if you’re not super tech-savvy, Olive is going to be built as a simple to use assistant in your daily life just a companion ai who knows you and will be able to organize your life. It'll be there to help, adapt, and overall organize your life how you didn't know you needed.
 
 ---
 
@@ -55,7 +55,7 @@ At its heart, ACO is meant to be that friendly companion on your desktop. Imagin
   Dive into settings for API connections, advanced formatting, and even personalize Olive’s system prompt to match your vibe.
   
 - **Coral-Themed Aesthetic:**  
-  Rocking a dark mode with a standout coral (or “bitterseet” if you’re into specifics) accent, the design is all about that sleek, modern look with a personal twist.
+  its themed a dark mode with  #ff7559  coral (or “bitterseet” if you’re into specifics) accent, i tried to design it to give it a modern look and i liked the look of coral as well as the name idk if its actually the bittersweet hex close enough.
 
 ---
 
